@@ -1,0 +1,42 @@
+{
+  "name": "piumino",
+  "version": "1.0.0",
+  "description": "A duvet for Angular TestBed providing helper functions to make testing easier",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/luukrijnbende/piumino.git"
+  },
+  "keywords": [
+    "angular",
+    "testbed",
+    "duvet",
+    "test",
+    "testing",
+    "unittest",
+    "componenttest"
+  ],
+  "author": "Luuk Rijnbende",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luukrijnbende/piumino/issues"
+  },
+  "homepage": "https://github.com/luukrijnbende/piumino#readme",
+  "devDependencies": {
+    "@angular/common": "^12.1.1",
+    "@angular/core": "^12.1.1",
+    "@angular/platform-browser": "^12.1.1",
+    "@types/jest": "^26.0.24",
+    "jest": "^27.0.6",
+    "rxjs": "^7.2.0",
+    "typescript": "^4.3.5"
+  }
+}
