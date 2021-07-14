@@ -1,14 +1,13 @@
 import { DebugElement } from "@angular/core";
-import { ComponentFixture } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { LooseObject, Selector } from "./types";
+import { ComponentFixtureLike, LooseObject, Selector } from "./types";
 
 export class Util {
     public static getSelectorName(selector: Selector): string {
         return Util.isString(selector) ? selector : selector.prototype.constructor.name;
     }
 
-    public static getElementBySelector<T>(fixture: ComponentFixture<T>, selector: Selector): DebugElement {
+    public static getElementBySelector(fixture: ComponentFixtureLike, selector: Selector): DebugElement {
         return fixture.debugElement.query(Util.isString(selector) ? By.css(selector) : By.directive(selector));
     }
 

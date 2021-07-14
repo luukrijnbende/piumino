@@ -1,5 +1,9 @@
 # Piumino
-Piumino, meaning duvet in Italian, is like a duvet over the bed called TestBed. It provides test helpers to test trivial things like inputs and outputs with a single line.
+Piumino, meaning duvet in Italian, is like a duvet over the bed called Angular TestBed. It provides test helpers to test trivial things like inputs and outputs with a single line.
+
+## Requirements
+- Tests that use Angular TestBed
+- Jest
 
 ## Usage
 ```bash
@@ -10,7 +14,51 @@ npm i -D piumino
 import { Piumino } from "piumino";
 
 const piumino = new Piumino();
-piumino.init(componentFixture, component);
+piumino.init(fixture);
+```
 
-it(...piumino.testInput());
+## Test helpers
+The test helpers work by spreading the result of the helper into the `it` or `test` provided by Jest. They provide the test case text and the implementation that tests the case as defined by the helper.
+
+### testInput
+```javascript
+it(...piumino.testInput(selector, input, source, modifyValue));
+```
+- `selector` \
+  A CSS selector or a type (e.g. Component, Directive) to select the element to test the input of.
+- `input` \
+  A string defining the input on the element to test.
+- `source` \
+  A string defining the variable on the parent component that the input is wired to.
+- `modifyValue` \
+  A value to modify the source with to test if the input changes.
+
+### testOuput
+```javascript
+it(...piumino.testOutput(selector, output, destination, modifyValue?));
+```
+- `selector` \
+  A CSS selector or a type (e.g. Component, Directive) to select the element to test the output of.
+- `output` \
+  A string defining the output on the element to test.
+- `destination` \
+  A string defining the function on the parent component that the output is wired to.
+- `modifyValue` \
+  A optional value to emit the output with.
+
+## Other helpers
+### before
+Execute some code before executing a test helper.
+```javascript
+it(...piumino.before(piumino.anyTestHelper(), () => {
+    // Before code
+}));
+```
+
+### after
+Execute some code after executing a test helper.
+```javascript
+it(...piumino.after(piumino.anyTestHelper(), () => {
+    // After code
+}));
 ```
