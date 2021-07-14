@@ -1,8 +1,20 @@
-import { DebugElement } from "@angular/core";
+import { DebugElement, Type } from "@angular/core";
 import { By } from "@angular/platform-browser";
 import { ComponentFixtureLike, LooseObject, Selector } from "./types";
 
 export class Util {
+    public static isString(value: any): value is string {
+        return typeof value === "string" || value instanceof String;
+    }
+
+    public static isFunction(value: any): value is Function {
+        return typeof value === "function";
+    }
+
+    public static isAngularType(element: DebugElement): boolean {
+        return element.nativeNode instanceof HTMLUnknownElement;
+    }
+
     public static getSelectorName(selector: Selector): string {
         return Util.isString(selector) ? selector : selector.prototype.constructor.name;
     }
@@ -30,10 +42,6 @@ export class Util {
         if (lastKey) {
             parent[lastKey] = value;
         }
-    }
-
-    private static isString(value: any): value is string {
-        return typeof value === "string";
     }
 
     private static pathToKeys(path: string | string[]): string[] {

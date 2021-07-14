@@ -29,7 +29,7 @@ it(...piumino.testInput(selector, input, source, modifyValue));
 - `input` \
   A string defining the input on the element to test.
 - `source` \
-  A string defining the variable on the parent component that the input is wired to.
+  A string defining the variable on the parent component that the input is wired to (if the source is a function, it will be executed to get the value). 
 - `modifyValue` \
   A value to modify the source with to test if the input changes.
 
