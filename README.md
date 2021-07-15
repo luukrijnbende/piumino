@@ -14,11 +14,22 @@ npm i -D piumino
 import { Piumino } from "piumino";
 
 const piumino = new Piumino();
-piumino.init(fixture);
+piumino.init(fixture, component);
 ```
 
 ## Test helpers
 The test helpers work by spreading the result of the helper into the `it` or `test` provided by Jest. They provide the test case text and the implementation that tests the case as defined by the helper.
+
+### testInputStatic
+```javascript
+it(...piumino.testInputStatic(selector, input, value));
+```
+- `selector` \
+  A CSS selector or a type (e.g. Component, Directive) to select the element to test the input of.
+- `input` \
+  A string defining the input on the element to test.
+- `value` \
+  The value to compare the input with.
 
 ### testInput
 ```javascript
@@ -45,6 +56,15 @@ it(...piumino.testOutput(selector, output, destination, modifyValue?));
   A string defining the function on the parent component that the output is wired to.
 - `modifyValue` \
   A optional value to emit the output with.
+
+### testText
+```javascript
+it(...piumino.testText(selector, value));
+```
+- `selector` \
+  A CSS selector or a type (e.g. Component, Directive) to select the element to test the text of.
+- `value` \
+  The value to compare the text with.
 
 ## Other helpers
 ### before

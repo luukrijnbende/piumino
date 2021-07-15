@@ -1,4 +1,4 @@
-import { DebugElement, Type } from "@angular/core";
+import { DebugElement } from "@angular/core";
 import { By } from "@angular/platform-browser";
 import { ComponentFixtureLike, LooseObject, Selector } from "./types";
 
