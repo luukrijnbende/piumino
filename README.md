@@ -46,7 +46,7 @@ it(...piumino.testInput(selector, input, source, modifyValue));
 
 ### testOuput
 ```javascript
-it(...piumino.testOutput(selector, output, destination, modifyValue?));
+it(...piumino.testOutput(selector, output, destination, ...modifyValue));
 ```
 - `selector` \
   A CSS selector or a type (e.g. Component, Directive) to select the element to test the output of.
@@ -55,7 +55,7 @@ it(...piumino.testOutput(selector, output, destination, modifyValue?));
 - `destination` \
   A string defining the function on the parent component that the output is wired to.
 - `modifyValue` \
-  A optional value to emit the output with.
+  Optional values to test the output with (it will emit the last value).
 
 ### testText
 ```javascript
