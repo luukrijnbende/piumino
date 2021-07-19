@@ -11,7 +11,7 @@ declare module "../piumino" {
 
 Piumino.prototype.testInput = function(selector, input, source, modifyValue) {
     return [
-        `should wire input "${input}" to ${Util.getSelectorName(selector)}`,
+        `should wire input '${input}' to ${Util.getSelectorName(selector)}`,
         () => {
             const element = Util.getElementBySelector(this.fixture, selector);
 

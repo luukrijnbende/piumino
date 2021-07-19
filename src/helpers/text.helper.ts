@@ -10,7 +10,7 @@ declare module "../piumino" {
 
 Piumino.prototype.testText = function(selector, value) {
     return [
-        `${Util.getSelectorName(selector)} should have text "${value}"`,
+        `${Util.getSelectorName(selector)} should have text '${value}'`,
         () => {
             const element = Util.getElementBySelector(this.fixture, selector);
             const text = element.nativeElement.textContent.trim();

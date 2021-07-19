@@ -10,7 +10,7 @@ declare module "../piumino" {
 
 Piumino.prototype.testInputStatic = function(selector, input, value) {
     return [
-        `should wire static input "${input}" to ${Util.getSelectorName(selector)}`,
+        `should wire static input '${input}' to ${Util.getSelectorName(selector)}`,
         () => {
             const element = Util.getElementBySelector(this.fixture, selector);
             const inputValue = Util.isAngularType(element) ? element.componentInstance[input] : element.properties[input];
