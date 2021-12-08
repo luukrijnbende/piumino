@@ -1,6 +1,6 @@
 import { DebugElement } from "@angular/core";
 import { By } from "@angular/platform-browser";
-import { ComponentFixtureLike, LooseObject, Selector } from "./types";
+import { ComponentFixtureLike, LooseObject, Selector } from "../types";
 
 export class Util {
     public static isString(value: any): value is string {
