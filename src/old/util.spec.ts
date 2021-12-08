@@ -1,5 +1,5 @@
 import { By } from "@angular/platform-browser";
-import { ComponentFixtureLike } from "./types";
+import { ComponentFixtureLike } from "../types";
 import { Util } from "./util";
 
 describe("Util", () => {

@@ -1,35 +1,22 @@
-import { ComponentFixtureLike, TestDefinition } from "./types";
+import { BaseMatcher } from "./matchers/base.matcher";
+import { ComponentFixtureLike, PiuminoError, Selector } from "./types";
 
-export class Piumino<T> {
-    public fixture: ComponentFixtureLike;
-    public component: T;
+export class Piumino {
+    private _fixture: ComponentFixtureLike | null = null;
 
-    public init(fixture: ComponentFixtureLike, component: T) {
-        this.fixture = fixture;
-        this.component = component;
+    public get fixture(): ComponentFixtureLike {
+        if (!this._fixture) {
+            throw new PiuminoError('Could not get fixture, please initialize Piumino first');
+        }
+
+        return this._fixture;
     }
 
-    public before(definition: TestDefinition, before: () => void): TestDefinition {
-        return [
-            definition[0],
-            () => {
-                before();
-                this.fixture.detectChanges();
-    
-                definition[1]();
-            }
-        ];
+    public init(fixture: ComponentFixtureLike) {
+        this._fixture = fixture;
     }
-    
-    public after(definition: TestDefinition, after: () => void): TestDefinition {
-        return [
-            definition[0],
-            () => {
-                definition[1]();
-    
-                this.fixture.detectChanges();
-                after();
-            }
-        ];
+
+    public expect(selector: Selector) {
+        return new BaseMatcher({ selector, getFixture: () => this.fixture });
     }
 }
