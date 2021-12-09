@@ -1,5 +1,5 @@
-import { EventEmitter } from "@angular/core";
 import { NgHelper } from "../helpers/ng.helper";
+import { ObjectHelper } from "../helpers/object.helper";
 import { PiuminoError, TestDefinition } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 
@@ -19,40 +19,41 @@ export class OutputMatcher extends Matcher {
         super(state);
     }
 
-    public toBeBoundTo(variable: string, modifyValue: any = "binding"): TestDefinition {
-        return [
-            `'${this.state.selector}' input '${this.state.outputSelector}' should be wired to '${variable}'`,
-            () => {
-                const element = this.getElement();
-                const component = this.getComponent();
+    // public toBeBoundTo(variable: string, modifyValue: any = "binding"): TestDefinition {
+    //     return [
+    //         `'${this.state.selector}' input '${this.state.outputSelector}' should be wired to '${variable}'`,
+    //         () => {
+    //             const element = this.getElement();
+    //             const component = this.getComponent();
 
-                // What to do if the variable is a getter?
-                // What to do if the variable is a function?
+    //             // What to do if the variable is a getter?
+    //             // What to do if the variable is a function?
 
-                component[variable] = modifyValue;
-                this.state.getFixture().detectChanges();
+    //             component[variable] = modifyValue;
+    //             this.state.getFixture().detectChanges();
 
-                const input = NgHelper.getProperty(element, this.state.outputSelector);
+    //             const input = NgHelper.getProperty(element, this.state.outputSelector);
 
-                expect(input).toEqual(component[variable]);
-            }
-        ]
-    }
+    //             expect(input).toEqual(component[variable]);
+    //         }
+    //     ]
+    // }
 
     public toCall(func: string, ...values: any[]): TestDefinition {
         return [
             `'${this.state.selector}' output '${this.state.outputSelector}' ${this.negate ? "should not" : "should"} call '${func}'`,
             () => {
+                const component = this.getComponent();
                 let hasBeenCalled = false;
                 let callValues;
 
-                this.replaceComponentFunction(func, (...args: any[]) => {
+                ObjectHelper.replaceFunction(component, func, (...args: any[]) => {
                     hasBeenCalled = true;
                     callValues = args;
                 });
 
                 this.dispatchEvent(values ? values[values.length - 1] : NO_EVENT_PAYLOAD);
-                this.restoreComponentFunction(func);
+                ObjectHelper.restoreFunction(component, func);
 
                 if (!this.negate && !hasBeenCalled) {
                     throw new PiuminoError(`Expected ${func} to have been called`);
@@ -70,6 +71,8 @@ export class OutputMatcher extends Matcher {
             }
         ]
     }
+
+    // TODO: toCallThrough
 
     private replaceComponentFunction(func: string, implementation: ComponentFunction): void {
         const component = this.getComponent();

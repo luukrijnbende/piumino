@@ -33,3 +33,10 @@ export class Piumino<T> {
         ];
     }
 }
+
+
+// TODO:
+// - Add to be bound to output matcher.
+// - Add functions to test definition, such as .execute/.run or .with for input/output toCall.
+// - Always execute dummy expect -> create wrapper for test definition.
+// - Test everything.

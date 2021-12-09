@@ -77,7 +77,7 @@ describe("Util", () => {
         it("should return an element for an Angular type selector", () => {
             class DummyComponent {}
 
-            expect(Util.getElementBySelector(fixture, DummyComponent)).toBe(element);
+            expect(Util.getElementBySelector(fixture, DummyComponent as any)).toBe(element);
             expect(By.css).not.toHaveBeenCalled();
             expect(By.directive).toHaveBeenCalledWith(DummyComponent);
         })
