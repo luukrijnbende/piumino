@@ -30,18 +30,18 @@ export class Matcher {
         return fixture.componentInstance;
     }
 
-    protected getElement(): HTMLElement {
+    protected getElement(throwError = true): HTMLElement {
         this.state.getFixture().detectChanges();
 
         const element: HTMLElement | null = this.state.selector instanceof HTMLElement
             ? this.state.selector
             : this.state.getFixture().nativeElement.querySelector(this.state.selector as string);
 
-        if (!element) {
+        if (throwError && !element) {
             throw new PiuminoError(`Could not find element with selector '${this.state.selector}'`);
         }
 
-        return element;
+        return element as HTMLElement;
     }
 
     protected dummyExpect(): void {

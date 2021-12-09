@@ -1,5 +1,6 @@
 import { NgHelper } from "../helpers/ng.helper";
-import { TestDefinition } from "../types";
+import { ObjectHelper } from "../helpers/object.helper";
+import { PiuminoError, TestDefinition } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 
 export interface InputMatcherState extends MatcherState {
@@ -20,27 +21,70 @@ export class InputMatcher extends Matcher {
                 const element = this.getElement();
                 const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-                expect(input).toEqual(value);
+                if (this.negate) {
+                    expect(input).not.toEqual(value);
+                } else {
+                    expect(input).toEqual(value);
+                }
             }
         ]
     }
 
-    public toBeBoundTo(variable: string, modifyValue: any = "binding"): TestDefinition {
+    public toBeBoundTo(property: string, modifyValue: any = "binding"): TestDefinition {
         return [
-            `'${this.state.selector}' input '${this.state.inputSelector}' should be wired to '${variable}'`,
+            `'${this.state.selector}' input '${this.state.inputSelector}' should be bound to '${property}'`,
             () => {
                 const element = this.getElement();
                 const component = this.getComponent();
 
-                // What to do if the variable is a getter?
-                // What to do if the variable is a function?
+                // What to do if the property is a getter?
 
-                component[variable] = modifyValue;
+                ObjectHelper.setProperty(component, property, modifyValue);
                 this.state.getFixture().detectChanges();
 
                 const input = NgHelper.getProperty(element, this.state.inputSelector);
+                const componentValue = ObjectHelper.getProperty(component, property);
 
-                expect(input).toEqual(component[variable]);
+                if (this.negate) {
+                    expect(input).not.toEqual(componentValue);
+                } else {
+                    expect(input).toEqual(componentValue);
+                }
+            }
+        ]
+    }
+
+    public toCall(func: string): TestDefinition {
+        return [
+            `'${this.state.selector}' input '${this.state.inputSelector}' should call '${func}'`,
+            () => {
+                const element = this.getElement();
+                const component = this.getComponent();
+                let hasBeenCalled = false;
+
+                ObjectHelper.replaceFunction(component, func, (...args: any[]) => {
+                    hasBeenCalled = true;
+                    return "binding";
+                });
+
+                this.state.getFixture().detectChanges();
+                ObjectHelper.restoreFunction(component, func);
+
+                const input = NgHelper.getProperty(element, this.state.inputSelector);
+
+                if (this.negate) {
+                    if (hasBeenCalled) {
+                        throw new PiuminoError(`Expected '${func}' not to have been called`);
+                    }
+
+                    this.dummyExpect();
+                } else {
+                    if (!hasBeenCalled) {
+                        throw new PiuminoError(`Expected '${func}' to have been called`);
+                    }
+
+                    expect(input).toEqual("binding");
+                }
             }
         ]
     }

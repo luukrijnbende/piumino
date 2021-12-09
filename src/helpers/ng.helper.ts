@@ -7,8 +7,8 @@ interface DirectiveMetadata {
 
 export class NgHelper {
     public static getProperty(element: HTMLElement, property: string, throwError = true): any {
-        if (element.attributes.getNamedItem(property)) {
-            return element.attributes.getNamedItem(property)?.value;
+        if (element.hasAttribute(property)) {
+            return element.getAttribute(property);
         }
 
         const component = NgHelper.getComponent(element);

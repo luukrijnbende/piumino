@@ -16,11 +16,11 @@ export class Util {
     }
 
     public static getSelectorName(selector: Selector): string {
-        return Util.isString(selector) ? selector : selector.prototype.constructor.name;
+        return Util.isString(selector) ? selector : (selector as any).prototype.constructor.name;
     }
 
     public static getElementBySelector(fixture: ComponentFixtureLike, selector: Selector): DebugElement {
-        return fixture.debugElement.query(Util.isString(selector) ? By.css(selector) : By.directive(selector));
+        return fixture.debugElement.query(Util.isString(selector) ? By.css(selector) : By.directive(selector as any));
     }
 
     public static getProperty(obj: LooseObject, path: string | string[]): any {
