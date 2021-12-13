@@ -1,4 +1,5 @@
 import { BaseMatcher } from "./matchers/base.matcher";
+import { MatcherChain } from "./matchers/matcher";
 import { ComponentFixtureLike, PiuminoError, Selector } from "./types";
 
 export class Piumino {
@@ -16,7 +17,7 @@ export class Piumino {
         this._fixture = fixture;
     }
 
-    public expect(selector: Selector) {
+    public expect(selector: Selector): MatcherChain<BaseMatcher> {
         return new BaseMatcher({ selector, getFixture: () => this.fixture });
     }
 }

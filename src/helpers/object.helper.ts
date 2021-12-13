@@ -25,6 +25,18 @@ export class ObjectHelper {
         }
     }
 
+    public static hasProperty(obj: Obj, path: string | string[]): boolean {
+        const keys = ObjectHelper.pathToKeys(path);
+        const lastKey = keys.pop();
+        const parent = keys.length ? this.getProperty(obj, keys) : obj;
+
+        if (lastKey) {
+            return lastKey in parent;
+        }
+        
+        return false;
+    }
+
     public static replaceFunction(obj: Obj, func: string, implementation: Function): void {
         ObjectHelper.originalFunctions.set(this.getOriginalFunctionKey(obj, func), ObjectHelper.getProperty(obj, func));
         obj[func] = implementation;
