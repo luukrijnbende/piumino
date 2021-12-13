@@ -9,39 +9,35 @@ export interface OutputMatcherState extends MatcherState {
     outputSelector: string;
 }
 
-type ComponentFunction = (...args: any[]) => void;
-
 export class OutputMatcher extends Matcher {
     protected override state!: OutputMatcherState;
-    private originalComponentFunctions: Map<string, ComponentFunction> = new Map();
 
     public constructor(state: OutputMatcherState) {
         super(state);
     }
 
-    // public toBeBoundTo(variable: string, modifyValue: any = "binding"): TestDefinition {
-    //     return [
-    //         `'${this.state.selector}' input '${this.state.outputSelector}' should be wired to '${variable}'`,
-    //         () => {
-    //             const element = this.getElement();
-    //             const component = this.getComponent();
+    public toBeBoundTo(property: string, modifyValue: any = "binding"): TestDefinition {
+        return [
+            this.getTestDescription(`bound to '${property}'`),
+            () => {
+                const component = this.getComponent();
 
-    //             // What to do if the variable is a getter?
-    //             // What to do if the variable is a function?
+                this.dispatchEvent(modifyValue);
 
-    //             component[variable] = modifyValue;
-    //             this.state.getFixture().detectChanges();
+                const componentValue = ObjectHelper.getProperty(component, property);
 
-    //             const input = NgHelper.getProperty(element, this.state.outputSelector);
-
-    //             expect(input).toEqual(component[variable]);
-    //         }
-    //     ]
-    // }
+                if (this.negate) {
+                    expect(componentValue).not.toEqual(modifyValue);
+                } else {
+                    expect(componentValue).toEqual(modifyValue);
+                }
+            }
+        ]
+    }
 
     public toCall(func: string, ...values: any[]): TestDefinition {
         return [
-            `'${this.state.selector}' output '${this.state.outputSelector}' ${this.negate ? "should not" : "should"} call '${func}'`,
+            this.getTestDescription(`call '${func}'`),
             () => {
                 const component = this.getComponent();
                 let hasBeenCalled = false;
@@ -72,38 +68,38 @@ export class OutputMatcher extends Matcher {
         ]
     }
 
+    private getTestDescription(description: string): string {
+        return `'${this.state.selector}' output '${this.state.outputSelector}' ${this.negate ? "should not" : "should"} ${description}`;
+    }
+
     // TODO: toCallThrough
-
-    private replaceComponentFunction(func: string, implementation: ComponentFunction): void {
-        const component = this.getComponent();
-
-        this.originalComponentFunctions.set(func, component[func]);
-        component[func] = implementation;
-    }
-
-    private restoreComponentFunction(func: string): void {
-        const component = this.getComponent();
-
-        component[func] = this.originalComponentFunctions.get(func);
-        this.originalComponentFunctions.delete(func);
-    }
 
     private dispatchEvent(payload: any = NO_EVENT_PAYLOAD): void {
         const element = this.getElement();
-        const output = NgHelper.getProperty(element, this.state.outputSelector, true);
+        const output = NgHelper.getProperty(element, this.state.outputSelector, false);
 
-        if (payload === NO_EVENT_PAYLOAD) {
-            if (output.emit) {
+        if (output?.emit) {
+            if (payload === NO_EVENT_PAYLOAD) {
                 output.emit();
             } else {
-                element.dispatchEvent(new Event(this.state.outputSelector));
+                output.emit(payload);
             }
         } else {
-            if (output.emit) {
-                output.emit(payload);
-            } else {
-                element.dispatchEvent(new CustomEvent(this.state.outputSelector, { detail: payload }));
-            }
+            this.dispatchNativeEvent(element, payload);
         }
+    }
+
+    private dispatchNativeEvent(element: HTMLElement, payload: any): boolean {
+        const [outputSelector, eventType] = this.state.outputSelector.split(".");
+
+        if (payload instanceof Event) {
+            return element.dispatchEvent(payload);
+        }
+
+        if (["keydown", "keyup"].includes(outputSelector)) {
+            return element.dispatchEvent(new KeyboardEvent(outputSelector, { key: eventType }));
+        }
+
+        return element.dispatchEvent(new Event(outputSelector));
     }
 }

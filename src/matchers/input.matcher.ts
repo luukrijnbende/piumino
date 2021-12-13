@@ -16,7 +16,7 @@ export class InputMatcher extends Matcher {
 
     public toEqual(value: any): TestDefinition {
         return [
-            `'${this.state.selector}' input '${this.state.inputSelector}' should equal '${value}'`,
+            this.getTestDescription(`equal '${value}'`),
             () => {
                 const element = this.getElement();
                 const input = NgHelper.getProperty(element, this.state.inputSelector);
@@ -32,7 +32,7 @@ export class InputMatcher extends Matcher {
 
     public toBeBoundTo(property: string, modifyValue: any = "binding"): TestDefinition {
         return [
-            `'${this.state.selector}' input '${this.state.inputSelector}' should be bound to '${property}'`,
+            this.getTestDescription(`be bound to '${property}'`),
             () => {
                 const element = this.getElement();
                 const component = this.getComponent();
@@ -56,7 +56,7 @@ export class InputMatcher extends Matcher {
 
     public toCall(func: string): TestDefinition {
         return [
-            `'${this.state.selector}' input '${this.state.inputSelector}' should call '${func}'`,
+            this.getTestDescription(`call '${func}'`),
             () => {
                 const element = this.getElement();
                 const component = this.getComponent();
@@ -87,5 +87,9 @@ export class InputMatcher extends Matcher {
                 }
             }
         ]
+    }
+
+    private getTestDescription(description: string): string {
+        return `'${this.state.selector}' input '${this.state.inputSelector}' ${this.negate ? "should not" : "should"} ${description}`;
     }
 }

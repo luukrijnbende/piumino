@@ -14,7 +14,7 @@ export class BaseMatcher extends Matcher {
 
     public toHaveText(text: string): TestDefinition {
         return [
-            `${this.state.selector} should have text '${text}'`,
+            this.getTestDescription(`have text '${text}'`),
             () => {
                 const elementText = this.getElement().textContent?.trim();
 
@@ -29,7 +29,7 @@ export class BaseMatcher extends Matcher {
 
     public toHaveTextCaseInsensitive(text: string): TestDefinition {
         return [
-            `${this.state.selector} should have case insensitive text '${text.toLowerCase()}'`,
+            this.getTestDescription(`have case insensitive text '${text.toLowerCase()}'`),
             () => {
                 const elementText = this.getElement().textContent?.trim().toLowerCase();
 
@@ -44,7 +44,7 @@ export class BaseMatcher extends Matcher {
 
     public toBePresent(): TestDefinition {
         return [
-            `'${this.state.selector}' should be present`,
+            this.getTestDescription("be present"),
             () => {
                 const element = this.getElement(false);
                 const isInDocument = element && element.ownerDocument === element.getRootNode({ composed: true });
@@ -64,7 +64,7 @@ export class BaseMatcher extends Matcher {
 
     public toBeVisible(): TestDefinition {
         return [
-            `'${this.state.selector}'' should be visible`,
+            this.getTestDescription("be visible"),
             () => {
                 const element = this.getElement(false);
                 const computedStyle = element && getComputedStyle(element);
@@ -88,6 +88,10 @@ export class BaseMatcher extends Matcher {
 
                 this.dummyExpect();
             }
-        ]
+        ];
+    }
+
+    private getTestDescription(description: string): string {
+        return `'${this.state.selector}' ${this.negate ? "should not" : "should"} ${description}`;
     }
 }
