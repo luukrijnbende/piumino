@@ -1,7 +1,7 @@
+import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { PiuminoError, TestDefinition } from "../types";
-import { Matcher, MatcherState } from "./matcher";
+import { Matcher, MatcherFinisher, MatcherState } from "./matcher";
 
 export interface InputMatcherState extends MatcherState {
     inputSelector: string;
@@ -14,82 +14,67 @@ export class InputMatcher extends Matcher {
         super(state);
     }
 
-    public toEqual(value: any): TestDefinition {
-        return [
-            this.getTestDescription(`equal '${value}'`),
-            () => {
-                const element = this.getElement();
-                const input = NgHelper.getProperty(element, this.state.inputSelector);
+    public toEqual(value: unknown): MatcherFinisher {
+        this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
+        this.setMatcher(() => {
+            const element = this.getElement();
+            const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-                if (this.negate) {
-                    expect(input).not.toEqual(value);
-                } else {
-                    expect(input).toEqual(value);
-                }
-            }
-        ]
+            return [deepEqual(input, value), input];
+        });
+
+        return this;
     }
 
-    public toBeBoundTo(property: string, modifyValue: any = "binding"): TestDefinition {
-        return [
-            this.getTestDescription(`be bound to '${property}'`),
-            () => {
-                const element = this.getElement();
-                const component = this.getComponent();
+    public toBeBoundTo(property: string, modifyValue: any = "binding"): MatcherFinisher {
+        this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
+        this.setMatcher(() => {
+            this.checkComponentHasProperty(property);
 
-                // What to do if the property is a getter?
+            const element = this.getElement();
+            const component = this.getComponent();
 
-                ObjectHelper.setProperty(component, property, modifyValue);
-                this.state.getFixture().detectChanges();
+            // TODO: What to do if the property is a getter?
+            // Getters can now only be checked using isEqual.
 
-                const input = NgHelper.getProperty(element, this.state.inputSelector);
-                const componentValue = ObjectHelper.getProperty(component, property);
+            ObjectHelper.setProperty(component, property, modifyValue);
+            this.state.getFixture().detectChanges();
 
-                if (this.negate) {
-                    expect(input).not.toEqual(componentValue);
-                } else {
-                    expect(input).toEqual(componentValue);
-                }
-            }
-        ]
+            const input = NgHelper.getProperty(element, this.state.inputSelector);
+            const componentValue = ObjectHelper.getProperty(component, property);
+
+            // TODO: Should we return the compared values to aid debugging?
+            return deepEqual(input, componentValue);
+        });
+
+        return this;
     }
 
-    public toCall(func: string): TestDefinition {
-        return [
-            this.getTestDescription(`call '${func}'`),
-            () => {
-                const element = this.getElement();
-                const component = this.getComponent();
-                let hasBeenCalled = false;
+    public toCall(func: string): MatcherFinisher {
+        this.setDescription(`call '${func}'`, this.getDescriptionModifier());
+        this.setMatcher(() => {
+            this.checkComponentHasProperty(func);
 
-                ObjectHelper.replaceFunction(component, func, (...args: any[]) => {
-                    hasBeenCalled = true;
-                    return "binding";
-                });
+            const component = this.getComponent();
+            let hasBeenCalled = false;
 
-                this.state.getFixture().detectChanges();
-                ObjectHelper.restoreFunction(component, func);
+            ObjectHelper.replaceFunction(component, func, (...args: any[]) => {
+                hasBeenCalled = true;
+            });
 
-                const input = NgHelper.getProperty(element, this.state.inputSelector);
+            this.state.getFixture().detectChanges();
+            ObjectHelper.restoreFunction(component, func);
 
-                if (this.negate) {
-                    if (hasBeenCalled) {
-                        throw new PiuminoError(`Expected '${func}' not to have been called`);
-                    }
+            // TODO: Should we also check if the return value of the function is assigned to the input property?
+            // const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-                    this.dummyExpect();
-                } else {
-                    if (!hasBeenCalled) {
-                        throw new PiuminoError(`Expected '${func}' to have been called`);
-                    }
+            return hasBeenCalled;
+        });
 
-                    expect(input).toEqual("binding");
-                }
-            }
-        ]
+        return this;
     }
 
-    private getTestDescription(description: string): string {
-        return `'${this.state.selector}' input '${this.state.inputSelector}' ${this.negate ? "should not" : "should"} ${description}`;
+    private getDescriptionModifier(): string {
+        return `input '${this.state.inputSelector}'`;
     }
 }

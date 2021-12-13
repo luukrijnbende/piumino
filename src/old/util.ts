@@ -1,6 +1,6 @@
 import { DebugElement } from "@angular/core";
 import { By } from "@angular/platform-browser";
-import { ComponentFixtureLike, LooseObject, Selector } from "../types";
+import { ComponentFixtureLike, Selector } from "../types";
 
 export class Util {
     public static isString(value: any): value is string {
@@ -23,7 +23,7 @@ export class Util {
         return fixture.debugElement.query(Util.isString(selector) ? By.css(selector) : By.directive(selector as any));
     }
 
-    public static getProperty(obj: LooseObject, path: string | string[]): any {
+    public static getProperty(obj: Record<string, any>, path: string | string[]): any {
         const keys = Util.pathToKeys(path);
         const value = obj[keys[0]];
 
@@ -34,7 +34,7 @@ export class Util {
         return value;
     }
 
-    public static setProperty(obj: LooseObject, path: string | string[], value: any): void {
+    public static setProperty(obj: Record<string, any>, path: string | string[], value: any): void {
         const keys = Util.pathToKeys(path);
         const lastKey = keys.pop();
         const parent = keys.length ? this.getProperty(obj, keys) : obj;
