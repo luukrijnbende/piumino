@@ -26,14 +26,14 @@ export class ObjectHelper {
     }
 
     public static replaceFunction(obj: Obj, func: string, implementation: Function): void {
-        ObjectHelper.originalFunctions.set(this.getOriginalFunctionKey(obj, func), obj[func]);
+        ObjectHelper.originalFunctions.set(this.getOriginalFunctionKey(obj, func), ObjectHelper.getProperty(obj, func));
         obj[func] = implementation;
     }
 
     public static restoreFunction(obj: Obj, func: string): void {
         const originalFunctionKey = this.getOriginalFunctionKey(obj, func);
 
-        obj[func] = ObjectHelper.originalFunctions.get(originalFunctionKey);
+        ObjectHelper.setProperty(obj, func, ObjectHelper.originalFunctions.get(originalFunctionKey));
         ObjectHelper.originalFunctions.delete(originalFunctionKey);
     }
 
