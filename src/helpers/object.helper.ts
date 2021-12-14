@@ -49,6 +49,10 @@ export class ObjectHelper {
         ObjectHelper.originalFunctions.delete(originalFunctionKey);
     }
 
+    public static isObject(obj: unknown): boolean {
+        return typeof obj === 'function' || typeof obj === 'object' && !!obj;
+    }
+
     private static pathToKeys(path: string | string[]): string[] {
         return Array.isArray(path) ? path : path.replace(/\[(\d)\]/g, ".$1").split(".");
     }

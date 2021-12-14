@@ -20,7 +20,7 @@ export class InputMatcher extends Matcher {
             const element = this.getElement();
             const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-            return [deepEqual(input, value), input];
+            return [deepEqual(input, value), input, value];
         });
 
         return this;
@@ -44,7 +44,7 @@ export class InputMatcher extends Matcher {
             const componentValue = ObjectHelper.getProperty(component, property);
 
             // TODO: Should we return the compared values to aid debugging?
-            return deepEqual(input, componentValue);
+            return [deepEqual(input, componentValue), input, componentValue];
         });
 
         return this;
