@@ -16,7 +16,7 @@ export class BaseMatcher extends Matcher {
         this.setMatcher(() => {
             const elementText = this.getElement().textContent?.trim() ?? "";
 
-            return [elementText === text, elementText];
+            return [elementText === text, elementText, text];
         });
 
         return this;
@@ -27,7 +27,7 @@ export class BaseMatcher extends Matcher {
         this.setMatcher(() => {
             const elementText = this.getElement().textContent?.trim().toLowerCase() ?? "";
 
-            return [elementText === text.toLowerCase(), elementText];
+            return [elementText === text.toLowerCase(), elementText, text.toLowerCase()];
         });
 
         return this;

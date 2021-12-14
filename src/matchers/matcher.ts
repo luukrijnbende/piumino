@@ -1,7 +1,7 @@
 import { ObjectHelper } from "../helpers/object.helper";
 import { ComponentFixtureLike, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
 
-type MatcherFunction = () => boolean | [boolean, any];
+type MatcherFunction = () => boolean | [boolean, any, any];
 export interface MatcherState {
     selector: Selector;
     getFixture: () => ComponentFixtureLike;
@@ -42,14 +42,10 @@ export class Matcher {
 
     public execute(): void {
         const result = this.matcher();
-        const [matcherResult, matcherReceived] = Array.isArray(result) ? result : [result, NOTHING];
+        const [matcherResult, matcherReceived, matcherExpected] = Array.isArray(result) ? result : [result, NOTHING, NOTHING];
 
         if ((!this.negate && !matcherResult) || (this.negate && matcherResult)) {
-            const errorMessage = matcherReceived === NOTHING
-                ? this.errorDescription
-                : `${this.errorDescription} but received '${matcherReceived}'`;
-
-            this.throwError(errorMessage);
+            this.throwError(this.errorDescription, matcherReceived, matcherExpected);
         }
 
         // Dummy expect to keep Jest / Jasmine happy.
@@ -99,11 +95,29 @@ export class Matcher {
         return element as HTMLElement;
     }
 
-    protected throwError(message: string): void {
-        throw new PiuminoError(message, this.errorStack);
+    protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): void {
+        let errorMessage = message;
+
+        if (received !== NOTHING) {
+            errorMessage += `\n\n\x1b[31mReceived: ${this.stringifyValue(received)}\x1b[0m`;
+        }
+
+        if (expected !== NOTHING) {
+            errorMessage += `\n\n\x1b[32mExpected: ${this.stringifyValue(expected)}\x1b[0m`;
+        }
+
+        throw new PiuminoError(errorMessage, this.errorStack);
     }
 
     private getErrorStack(): string | undefined {
         return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
+    }
+
+    private stringifyValue(value: unknown) {
+        if (ObjectHelper.isObject(value)) {
+            return `\n${JSON.stringify(value, null, 2)}`;
+        }
+
+        return `${value}`;
     }
 }
