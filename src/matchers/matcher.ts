@@ -1,51 +1,46 @@
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
+import { ComponentFixtureLike, MatcherChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
 
-type MatcherFunction = () => boolean | [boolean, any, any];
 export interface MatcherState {
     selector: Selector;
-    getFixture: () => ComponentFixtureLike;
+    negate?: boolean;
+    description?: string;
+    errorDescription?: string;
+    errorStack?: string;
+    getFixture: () => ComponentFixtureLike | null;
+    matcher?: MatcherFunction;
 }
 
-export type MatcherChain<T, K extends string = ""> = Omit<T, "build" | "execute" | K>;
-export type MatcherFinisher = Pick<Matcher, "build" | "execute">;
-
-export class Matcher {
+export class Matcher<NotExcludes extends string = ""> {
     protected state: MatcherState;
-    protected negate = false;
-    protected description: string;
-    protected errorDescription: string;
-    protected errorStack = new Error().stack;
-    protected matcher: MatcherFunction;
 
-    public get not(): MatcherChain<this, "not"> {
-        this.negate = true;
+    public get not(): MatcherChain<this, "not" | "build" | "execute" | NotExcludes> {
+        this.state.negate = true;
 
         return this;
     }
 
     public constructor(state: MatcherState) {
         this.state = state;
-        this.errorStack = this.getErrorStack();
     }
 
     public build(): TestDefinition {
-        if (!this.matcher) {
-            this.throwError("Please choose a matcher first");
-        }
-
         return [
-            this.description,
+            this.state.description!,
             () => this.execute()
         ];
     }
 
     public execute(): void {
-        const result = this.matcher();
+        if (!this.state.matcher) {
+            return this.throwError("Please choose a matcher first");
+        }
+
+        const result = this.state.matcher();
         const [matcherResult, matcherReceived, matcherExpected] = Array.isArray(result) ? result : [result, NOTHING, NOTHING];
 
-        if ((!this.negate && !matcherResult) || (this.negate && matcherResult)) {
-            this.throwError(this.errorDescription, matcherReceived, matcherExpected);
+        if ((!this.state.negate && !matcherResult) || (this.state.negate && matcherResult)) {
+            this.throwError(this.state.errorDescription!, matcherReceived, matcherExpected);
         }
 
         // Dummy expect to keep Jest / Jasmine happy.
@@ -53,16 +48,31 @@ export class Matcher {
     }
 
     protected setDescription(description: string, modifier?: string): void {
-        this.description = `'${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.negate ? "should not" : "should"} ${description}`;
-        this.errorDescription = `Expected '${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.negate ? "not to" : "to"} ${description}`;
+        this.state.description = `'${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "should not" : "should"} ${description}`;
+        this.state.errorDescription = `Expected '${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "not to" : "to"} ${description}`;
+    }
+
+    protected appendDescription(description: string): void {
+        this.state.description += ` ${description}`;
+        this.state.errorDescription += ` ${description}`;
     }
 
     protected setMatcher(matcher: MatcherFunction): void {
-        this.matcher = matcher;
+        this.state.matcher = matcher;
+    }
+
+    protected getFixture(): ComponentFixtureLike {
+        const fixture = this.state.getFixture();
+
+        if (!fixture) {
+            return this.throwError("Could not get fixture, please initialize Piumino first");
+        }
+        
+        return fixture;
     }
 
     protected getComponent(): any {
-        const fixture = this.state.getFixture();
+        const fixture = this.getFixture();
 
         // Support for ngMocks.
         // https://ng-mocks.sudo.eu/api/MockRender#example-with-a-component
@@ -82,20 +92,22 @@ export class Matcher {
     }
 
     protected getElement(throwError = true): HTMLElement {
-        this.state.getFixture().detectChanges();
+        const fixture = this.getFixture();
+
+        fixture.detectChanges();
 
         const element: HTMLElement | null = this.state.selector instanceof HTMLElement
             ? this.state.selector
-            : this.state.getFixture().nativeElement.querySelector(this.state.selector as string);
+            : fixture.nativeElement.querySelector(this.state.selector as string);
 
         if (throwError && !element) {
-            this.throwError(`Could not find element with selector '${this.state.selector}'`);
+            return this.throwError(`Could not find element with selector '${this.state.selector}'`);
         }
 
         return element as HTMLElement;
     }
 
-    protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): void {
+    protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): never {
         let errorMessage = message;
 
         if (received !== NOTHING) {
@@ -106,13 +118,11 @@ export class Matcher {
             errorMessage += `\n\n\x1b[32mExpected: ${this.stringifyValue(expected)}\x1b[0m`;
         }
 
-        throw new PiuminoError(errorMessage, this.errorStack);
+        throw new PiuminoError(errorMessage, this.state.errorStack);
     }
 
-    private getErrorStack(): string | undefined {
-        return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
-    }
-
+    // TODO: Stringify without JSON to preserve for example, undefined.
+    // https://www.npmjs.com/package/stringify-object
     private stringifyValue(value: unknown) {
         if (ObjectHelper.isObject(value)) {
             return `\n${JSON.stringify(value, null, 2)}`;
