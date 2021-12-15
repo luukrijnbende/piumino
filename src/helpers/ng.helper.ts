@@ -1,4 +1,4 @@
-import { GenericDirective, PiuminoError } from "../types";
+import { GenericObject, PiuminoError } from "../types";
 
 interface DirectiveMetadata {
     inputs?: Record<string, string>;
@@ -46,23 +46,23 @@ export class NgHelper {
         }
     }
 
-    private static getComponent(element: HTMLElement): GenericDirective {
+    private static getComponent(element: HTMLElement): GenericObject {
         // @ts-ignore
         return window.ng.getComponent(element);
     }
 
-    private static getDirectives(element: HTMLElement): GenericDirective[] {
+    private static getDirectives(element: HTMLElement): GenericObject[] {
         // @ts-ignore
         return window.ng.getDirectives(element);
     }
 
-    private static getDirectiveMetadata(directive: GenericDirective): DirectiveMetadata {
+    private static getDirectiveMetadata(directive: GenericObject): DirectiveMetadata {
         // Function does not exist before Angular 12.
         // @ts-ignore
         return window.ng.getDirectiveMetadata ? window.ng.getDirectiveMetadata(directive) : {};
     }
 
-    private static getDirectivePropertyMap(directive: GenericDirective): Record<string, string> {
+    private static getDirectivePropertyMap(directive: GenericObject): Record<string, string> {
         const metadata = NgHelper.getDirectiveMetadata(directive);
 
         return metadata ? { ...metadata.inputs, ...metadata.outputs } : {};

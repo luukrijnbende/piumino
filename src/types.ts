@@ -1,16 +1,20 @@
 import { DebugElement } from "@angular/core";
 
-export const NOTHING = Symbol('NOTHING');
+export const NOTHING = Symbol("NOTHING");
 
 export type Selector = string | HTMLElement;
 export type TestDefinition = [string, () => void];
-export type GenericDirective = Record<string, any>;
+export type GenericObject = Record<string, any>;
+export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
+export type MatcherChain<T, Excludes extends string = "build" | "execute"> = Omit<T, Excludes>;
+export type MatcherFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
+
 export interface ComponentFixtureLike {
-    componentInstance: GenericDirective;
+    componentInstance: GenericObject;
     debugElement: DebugElement;
     nativeElement: HTMLElement;
     point?: {
-        componentInstance: GenericDirective;
+        componentInstance: GenericObject;
     };
     detectChanges(checkNoChanges?: boolean): void;
 }

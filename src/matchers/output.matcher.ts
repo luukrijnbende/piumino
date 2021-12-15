@@ -1,8 +1,9 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { NOTHING } from "../types";
-import { Matcher, MatcherFinisher, MatcherState } from "./matcher";
+import { MatcherChain, MatcherFinisher, NOTHING } from "../types";
+import { Matcher, MatcherState } from "./matcher";
+import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 export interface OutputMatcherState extends MatcherState {
     outputSelector: string;
@@ -15,57 +16,69 @@ export class OutputMatcher extends Matcher {
         super(state);
     }
 
-    public toBeBoundTo(property: string, modifyValue: any = "binding"): MatcherFinisher {
+    /**
+     * Expect the output of the selected element to be bound to the provided property of the fixture's component.\
+     * NOTE: Does not work for setters.
+     * 
+     * (output)="property = true"
+     * 
+     * @param property - The property of the fixture's component that should be bounded to the output of the selected element.
+     */
+    public toBeBoundTo(property: string): MatcherFinisher<this> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
-        this.setMatcher(() => {
+        this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
-            this.dispatchEvent(modifyValue);
+            this.dispatchEvent(payload);
 
             // TODO: What to do if the property is a setter?
+            // TODO: Add .modifyWith().
 
             const component = this.getComponent();
             const componentValue = ObjectHelper.getProperty(component, property);
 
-            // TODO: Should we return the compared values to aid debugging?
-            return deepEqual(componentValue, modifyValue);
+            return [deepEqual(componentValue, payload), componentValue, payload];
         });
 
         return this;
     }
 
-    public toCall(func: string, ...values: any[]): MatcherFinisher {
+    /**
+     * Expect the output of the selected element to call the provided function of the fixture's component.
+     * 
+     * (output)="func()"
+     * 
+     * @param func - The function of the fixture's component that should be called by the output of the selected element.
+     */
+    public toCall(func: string): MatcherChain<ToCallWithMatcher, "not"> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
-        this.setMatcher(() => {
+        this.setMatcher((payload: unknown = NOTHING) => {
+            this.checkComponentHasProperty(func);
+
             const component = this.getComponent();
             let hasBeenCalled = false;
             let callValues;
 
-            ObjectHelper.replaceFunction(component, func, (...args: any[]) => {
+            ObjectHelper.replaceFunction(component, func, (...args: unknown[]) => {
                 hasBeenCalled = true;
-                callValues = args;
+                callValues = args.length ? args : NOTHING;
             });
 
-            this.dispatchEvent(values ? values[values.length - 1] : NOTHING);
+            this.dispatchEvent(payload);
             ObjectHelper.restoreFunction(component, func);
 
-            return hasBeenCalled;
-
-            // TODO: Check values through chained .with().
-            // if (callValues) {
-            //     expect(values).toEqual(callValues);
-            // }
+            return [hasBeenCalled, callValues, NOTHING];
         });
 
-        return this;
+        return new ToCallWithMatcher({ ...this.state });
     }
 
     // TODO: toCallThrough
 
     private getDescriptionModifier(): string {
-        return `input '${this.state.outputSelector}'`;
+        return `output '${this.state.outputSelector}'`;
     }
 
-    private dispatchEvent(payload: any = NOTHING): void {
+    private dispatchEvent(payload: unknown = NOTHING): void {
         const element = this.getElement();
         const output = NgHelper.getProperty(element, this.state.outputSelector, false);
 
@@ -80,7 +93,7 @@ export class OutputMatcher extends Matcher {
         }
     }
 
-    private dispatchNativeEvent(element: HTMLElement, payload: any): boolean {
+    private dispatchNativeEvent(element: HTMLElement, payload: unknown): boolean {
         const [outputSelector, eventType] = this.state.outputSelector.split(".");
 
         if (payload instanceof Event) {
