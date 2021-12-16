@@ -1,14 +1,14 @@
-import { MatcherChain, MatcherFinisher } from "../types";
+import { MatcherChain, MatcherChainFinisher, MatcherChainStarter } from "../types";
 import { InputMatcher } from "./input.matcher";
 import { Matcher } from "./matcher";
 import { OutputMatcher } from "./output.matcher";
 
-export class BaseMatcher extends Matcher<"input" | "output"> {
+export class BaseMatcher extends Matcher {
     /**
      * Select an input of the selected element to expect something on.
      * @param inputSelector - The selector to find the input.
      */
-    public input(inputSelector: string): MatcherChain<InputMatcher> {
+    public input(inputSelector: string): MatcherChainStarter<InputMatcher> {
         return new InputMatcher({ ...this.state, inputSelector });
     }
 
@@ -16,7 +16,7 @@ export class BaseMatcher extends Matcher<"input" | "output"> {
      * Select an output of the selected element to expect something on.
      * @param outputSelector - The selector to find the output.
      */
-    public output(outputSelector: string): MatcherChain<OutputMatcher> {
+    public output(outputSelector: string): MatcherChainStarter<OutputMatcher> {
         return new OutputMatcher({ ...this.state, outputSelector });
     }
 
@@ -24,7 +24,7 @@ export class BaseMatcher extends Matcher<"input" | "output"> {
      * Expect the selected element to have the provided text.
      * @param text - The text to compare with the text of the selected element.
      */
-    public toHaveText(text: string): MatcherFinisher<this> {
+    public toHaveText(text: string): MatcherChainFinisher<this> {
         this.setDescription(`have text '${text}'`);
         this.setMatcher(() => {
             const elementText = this.getElement().textContent?.trim() ?? "";
@@ -39,7 +39,7 @@ export class BaseMatcher extends Matcher<"input" | "output"> {
      * Expect the selected element to have the provided text, ignoring case.
      * @param text - The text to compare with the text of the selected element.
      */
-    public toHaveTextCaseInsensitive(text: string): MatcherFinisher<this> {
+    public toHaveTextCaseInsensitive(text: string): MatcherChainFinisher<this> {
         this.setDescription(`have case insensitive text '${text.toLowerCase()}'`);
         this.setMatcher(() => {
             const elementText = this.getElement().textContent?.trim().toLowerCase() ?? "";
@@ -53,7 +53,7 @@ export class BaseMatcher extends Matcher<"input" | "output"> {
     /**
      * Expect the selected element to be present in the DOM.
      */
-    public toBePresent(): MatcherFinisher<this> {
+    public toBePresent(): MatcherChainFinisher<this> {
         this.setDescription("be present");
         this.setMatcher(() => {
             const element = this.getElement(false);
@@ -67,7 +67,7 @@ export class BaseMatcher extends Matcher<"input" | "output"> {
     /**
      * Expect the selected element to be visible in the DOM.
      */
-    public toBeVisible(): MatcherFinisher<this> {
+    public toBeVisible(): MatcherChainFinisher<this> {
         this.setDescription("be visible");
         this.setMatcher(() => {
             const element = this.getElement(false);
