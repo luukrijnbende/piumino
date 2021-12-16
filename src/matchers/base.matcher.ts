@@ -6,6 +6,7 @@ import { OutputMatcher } from "./output.matcher";
 export class BaseMatcher extends Matcher {
     /**
      * Select an input of the selected element to expect something on.
+     * 
      * @param inputSelector - The selector to find the input.
      */
     public input(inputSelector: string): MatcherChainStarter<InputMatcher> {
@@ -14,6 +15,7 @@ export class BaseMatcher extends Matcher {
 
     /**
      * Select an output of the selected element to expect something on.
+     * 
      * @param outputSelector - The selector to find the output.
      */
     public output(outputSelector: string): MatcherChainStarter<OutputMatcher> {
@@ -22,6 +24,7 @@ export class BaseMatcher extends Matcher {
 
     /**
      * Expect the selected element to have the provided text.
+     * 
      * @param text - The text to compare with the text of the selected element.
      */
     public toHaveText(text: string): MatcherChainFinisher<this> {
@@ -37,6 +40,7 @@ export class BaseMatcher extends Matcher {
 
     /**
      * Expect the selected element to have the provided text, ignoring case.
+     * 
      * @param text - The text to compare with the text of the selected element.
      */
     public toHaveTextCaseInsensitive(text: string): MatcherChainFinisher<this> {

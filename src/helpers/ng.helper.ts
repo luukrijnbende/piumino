@@ -6,7 +6,7 @@ interface DirectiveMetadata {
 }
 
 export class NgHelper {
-    public static getProperty(element: HTMLElement, property: string, throwError = true): any {
+    public static getProperty(element: HTMLElement, property: string, throwError?: (message: string) => void): any {
         if (element.hasAttribute(property)) {
             return element.getAttribute(property);
         }
@@ -42,7 +42,7 @@ export class NgHelper {
         }
 
         if (throwError) {
-            throw new PiuminoError(`Property '${property}' not found on '${element.localName}''`);
+            throwError(`Property '${property}' not found on '${element.localName}''`);
         }
     }
 
