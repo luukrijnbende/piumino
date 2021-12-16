@@ -3,6 +3,7 @@ import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
 import { MatcherChain, MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
+import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 export interface InputMatcherState extends MatcherState {
@@ -44,7 +45,7 @@ export class InputMatcher extends Matcher {
      * 
      * @param property - The property of the fixture's component that should be bounded to the input of the selected element.
      */
-    public toBeBoundTo(property: string): MatcherChainFinisher<this> {
+    public toBeBoundTo(property: string): MatcherChainWithFinisher<ModifyWithMatcher> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
@@ -55,8 +56,6 @@ export class InputMatcher extends Matcher {
             // TODO: What to do if the property is a getter?
             // Getters can now only be checked using isEqual.
 
-            // TODO: Add .modifyWith().
-
             ObjectHelper.setProperty(component, property, payload);
             this.getFixture().detectChanges();
 
@@ -66,7 +65,7 @@ export class InputMatcher extends Matcher {
             return [deepEqual(input, componentValue), input, componentValue];
         });
 
-        return this;
+        return new ModifyWithMatcher({ ...this.state });
     }
 
     /**

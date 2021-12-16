@@ -3,6 +3,7 @@ import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
 import { MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
+import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 export interface OutputMatcherState extends MatcherState {
@@ -24,14 +25,13 @@ export class OutputMatcher extends Matcher {
      * 
      * @param property - The property of the fixture's component that should be bounded to the output of the selected element.
      */
-    public toBeBoundTo(property: string): MatcherChainFinisher<this> {
+    public toBeBoundTo(property: string): MatcherChainWithFinisher<ModifyWithMatcher> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
             this.dispatchEvent(payload);
 
             // TODO: What to do if the property is a setter?
-            // TODO: Add .modifyWith().
 
             const component = this.getComponent();
             const componentValue = ObjectHelper.getProperty(component, property);
@@ -39,7 +39,7 @@ export class OutputMatcher extends Matcher {
             return [deepEqual(componentValue, payload), componentValue, payload];
         });
 
-        return this;
+        return new ModifyWithMatcher({ ...this.state });
     }
 
     /**
