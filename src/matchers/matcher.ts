@@ -1,3 +1,4 @@
+import objectInspect from "object-inspect";
 import { ObjectHelper } from "../helpers/object.helper";
 import { ComponentFixtureLike, MatcherChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
 
@@ -121,11 +122,9 @@ export class Matcher<NotExcludes extends string = ""> {
         throw new PiuminoError(errorMessage, this.state.errorStack);
     }
 
-    // TODO: Stringify without JSON to preserve for example, undefined.
-    // https://www.npmjs.com/package/stringify-object
     private stringifyValue(value: unknown) {
         if (ObjectHelper.isObject(value)) {
-            return `\n${JSON.stringify(value, null, 2)}`;
+            return `\n${objectInspect(value, { indent: 2 })}`;
         }
 
         return `${value}`;
