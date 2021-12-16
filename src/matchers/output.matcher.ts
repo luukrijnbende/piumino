@@ -1,7 +1,7 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherChain, MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
+import { MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
@@ -80,7 +80,7 @@ export class OutputMatcher extends Matcher {
 
     private dispatchEvent(payload: unknown = NOTHING): void {
         const element = this.getElement();
-        const output = NgHelper.getProperty(element, this.state.outputSelector, false);
+        const output = NgHelper.getProperty(element, this.state.outputSelector);
 
         if (output?.emit) {
             if (payload === NOTHING) {

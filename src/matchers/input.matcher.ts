@@ -28,7 +28,7 @@ export class InputMatcher extends Matcher {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             const element = this.getElement();
-            const input = NgHelper.getProperty(element, this.state.inputSelector);
+            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
 
             return [deepEqual(input, value), input, value];
         });
@@ -60,7 +60,7 @@ export class InputMatcher extends Matcher {
             ObjectHelper.setProperty(component, property, payload);
             this.getFixture().detectChanges();
 
-            const input = NgHelper.getProperty(element, this.state.inputSelector);
+            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
             const componentValue = ObjectHelper.getProperty(component, property);
 
             return [deepEqual(input, componentValue), input, componentValue];
@@ -81,6 +81,7 @@ export class InputMatcher extends Matcher {
         this.setMatcher(() => {
             this.checkComponentHasProperty(func);
 
+            const element = this.getElement();
             const component = this.getComponent();
             let hasBeenCalled = false;
             let callValues;
@@ -94,7 +95,8 @@ export class InputMatcher extends Matcher {
             ObjectHelper.restoreFunction(component, func);
 
             // TODO: Should we also check if the return value of the function is assigned to the input property?
-            // const input = NgHelper.getProperty(element, this.state.inputSelector);
+            // Add .something function.
+            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
 
             return [hasBeenCalled, callValues, NOTHING];
         });
