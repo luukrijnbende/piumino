@@ -6,8 +6,11 @@ export type Selector = string | HTMLElement;
 export type TestDefinition = [string, () => void];
 export type GenericObject = Record<string, any>;
 export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
-export type MatcherChain<T, Excludes extends string = "build" | "execute"> = Omit<T, Excludes>;
-export type MatcherFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
+export type MatcherChainStarters = "input" | "output";
+export type MatcherChainStarter<T extends GenericObject> = Omit<T, "build" | "execute">;
+export type MatcherChain<T extends GenericObject> = Omit<T, "build" | "execute" | "not" | MatcherChainStarters>;
+export type MatcherChainWithFinisher<T extends GenericObject> = Omit<T, "not" | MatcherChainStarters>;
+export type MatcherChainFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
 
 export interface ComponentFixtureLike {
     componentInstance: GenericObject;

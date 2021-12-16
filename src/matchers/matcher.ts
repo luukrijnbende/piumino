@@ -15,7 +15,13 @@ export interface MatcherState {
 export class Matcher<NotExcludes extends string = ""> {
     protected state: MatcherState;
 
-    public get not(): MatcherChain<this, "not" | "build" | "execute" | NotExcludes> {
+    // public get not(): MatcherChain<this, "not" | "build" | "execute" | NotExcludes> {
+    //     this.state.negate = true;
+
+    //     return this;
+    // }
+
+    public get not(): MatcherChain<this> {
         this.state.negate = true;
 
         return this;
@@ -111,11 +117,8 @@ export class Matcher<NotExcludes extends string = ""> {
     protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): never {
         let errorMessage = message;
 
-        if (received !== NOTHING) {
+        if (received !== NOTHING || expected !== NOTHING) {
             errorMessage += `\n\n\x1b[31mReceived: ${this.stringifyValue(received)}\x1b[0m`;
-        }
-
-        if (expected !== NOTHING) {
             errorMessage += `\n\n\x1b[32mExpected: ${this.stringifyValue(expected)}\x1b[0m`;
         }
 
@@ -123,6 +126,14 @@ export class Matcher<NotExcludes extends string = ""> {
     }
 
     private stringifyValue(value: unknown) {
+        if (value === NOTHING) {
+            return "";
+        }
+
+        if (typeof value === "string") {
+            return `'${value}'`;
+        }
+
         if (ObjectHelper.isObject(value)) {
             return `\n${objectInspect(value, { indent: 2 })}`;
         }

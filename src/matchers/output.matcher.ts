@@ -1,7 +1,7 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherChain, MatcherFinisher, NOTHING } from "../types";
+import { MatcherChain, MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
@@ -20,11 +20,11 @@ export class OutputMatcher extends Matcher {
      * Expect the output of the selected element to be bound to the provided property of the fixture's component.\
      * NOTE: Does not work for setters.
      * 
-     * (output)="property = true"
+     * (output)="property = $event"
      * 
      * @param property - The property of the fixture's component that should be bounded to the output of the selected element.
      */
-    public toBeBoundTo(property: string): MatcherFinisher<this> {
+    public toBeBoundTo(property: string): MatcherChainFinisher<this> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
@@ -49,7 +49,7 @@ export class OutputMatcher extends Matcher {
      * 
      * @param func - The function of the fixture's component that should be called by the output of the selected element.
      */
-    public toCall(func: string): MatcherChain<ToCallWithMatcher, "not"> {
+    public toCall(func: string): MatcherChainWithFinisher<ToCallWithMatcher> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = NOTHING) => {
             this.checkComponentHasProperty(func);

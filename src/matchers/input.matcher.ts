@@ -1,8 +1,9 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherFinisher } from "../types";
+import { MatcherChain, MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
+import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 export interface InputMatcherState extends MatcherState {
     inputSelector: string;
@@ -23,7 +24,7 @@ export class InputMatcher extends Matcher {
      * @param value - The value to compare with the input value of the selected element.
      * @returns 
      */
-    public toEqual(value: unknown): MatcherFinisher<this> {
+    public toEqual(value: unknown): MatcherChainFinisher<this> {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             const element = this.getElement();
@@ -43,7 +44,7 @@ export class InputMatcher extends Matcher {
      * 
      * @param property - The property of the fixture's component that should be bounded to the input of the selected element.
      */
-    public toBeBoundTo(property: string): MatcherFinisher<this> {
+    public toBeBoundTo(property: string): MatcherChainFinisher<this> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
@@ -75,16 +76,18 @@ export class InputMatcher extends Matcher {
      * 
      * @param func - The function of the fixture's component that should be called by the input of the selected element.
      */
-    public toCall(func: string): MatcherFinisher<this> {
+    public toCall(func: string): MatcherChainWithFinisher<ToCallWithMatcher> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             this.checkComponentHasProperty(func);
 
             const component = this.getComponent();
             let hasBeenCalled = false;
+            let callValues;
 
             ObjectHelper.replaceFunction(component, func, (...args: unknown[]) => {
                 hasBeenCalled = true;
+                callValues = args.length ? args : NOTHING;
             });
 
             this.getFixture().detectChanges();
@@ -93,10 +96,10 @@ export class InputMatcher extends Matcher {
             // TODO: Should we also check if the return value of the function is assigned to the input property?
             // const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-            return [hasBeenCalled];
+            return [hasBeenCalled, callValues, NOTHING];
         });
 
-        return this;
+        return new ToCallWithMatcher({ ...this.state });
     }
 
     private getDescriptionModifier(): string {

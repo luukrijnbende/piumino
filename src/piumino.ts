@@ -1,5 +1,5 @@
 import { BaseMatcher } from "./matchers/base.matcher";
-import { ComponentFixtureLike, MatcherChain, PiuminoError, Selector } from "./types";
+import { ComponentFixtureLike, MatcherChainStarter, Selector } from "./types";
 
 export class Piumino {
     private fixture: ComponentFixtureLike | null = null;
@@ -17,7 +17,7 @@ export class Piumino {
      * Select an element that is a child of the fixture's component to expect something on.
      * @param selector - The selector to find the element or an actual HTMLElement.
      */
-    public expect(selector: Selector): MatcherChain<BaseMatcher> {
+    public expect(selector: Selector): MatcherChainStarter<BaseMatcher> {
         this.errorStack = this.getErrorStack();
 
         return new BaseMatcher({ selector, errorStack: this.errorStack, getFixture: () => this.getFixture() });
