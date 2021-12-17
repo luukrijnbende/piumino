@@ -62,7 +62,7 @@ export class BaseMatcher extends Matcher {
         this.setMatcher(() => {
             const element = this.getElement(false);
 
-            return [element && element.ownerDocument === element.getRootNode({ composed: true })];
+            return [!!element && element.ownerDocument === element.getRootNode({ composed: true })];
         });
 
         return this;
@@ -75,15 +75,15 @@ export class BaseMatcher extends Matcher {
         this.setDescription("be visible");
         this.setMatcher(() => {
             const element = this.getElement(false);
-            const computedStyle = element && getComputedStyle(element);
+            const computedStyle = !!element && getComputedStyle(element);
 
-            const isStyleVisible = element
+            const isStyleVisible = !!element
                 && computedStyle.display !== "none"
                 && computedStyle.visibility !== "hidden"
                 && computedStyle.visibility !== "collapsed"
                 && computedStyle.opacity !== "0";
-            const isAttributeVisible = element && !element.hasAttribute("hidden");
-            const isInDocument = element && element.ownerDocument === element.getRootNode({ composed: true });
+            const isAttributeVisible = !!element && !element.hasAttribute("hidden");
+            const isInDocument = !!element && element.ownerDocument === element.getRootNode({ composed: true });
 
             return [isStyleVisible && isAttributeVisible && isInDocument];
         });
