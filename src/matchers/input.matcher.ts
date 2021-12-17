@@ -1,7 +1,7 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherChain, MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
+import { MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
@@ -28,8 +28,10 @@ export class InputMatcher extends Matcher {
     public toEqual(value: unknown): MatcherChainFinisher<this> {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
+            this.checkElementHasProperty(this.state.inputSelector);
+
             const element = this.getElement();
-            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
+            const input = NgHelper.getProperty(element, this.state.inputSelector);
 
             return [deepEqual(input, value), input, value];
         });
@@ -49,9 +51,10 @@ export class InputMatcher extends Matcher {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
+            this.checkElementHasProperty(this.state.inputSelector);
 
-            const element = this.getElement();
             const component = this.getComponent();
+            const element = this.getElement();
 
             // TODO: What to do if the property is a getter?
             // Getters can now only be checked using isEqual.
@@ -59,7 +62,7 @@ export class InputMatcher extends Matcher {
             ObjectHelper.setProperty(component, property, payload);
             this.getFixture().detectChanges();
 
-            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
+            const input = NgHelper.getProperty(element, this.state.inputSelector);
             const componentValue = ObjectHelper.getProperty(component, property);
 
             return [deepEqual(input, componentValue), input, componentValue];
@@ -70,6 +73,7 @@ export class InputMatcher extends Matcher {
 
     /**
      * Expect the input of the selected element to call the provided function of the fixture's component.
+     * Also checks if the return value of the function is assigned to the input.
      * 
      * [input]="func()"
      * 
@@ -79,29 +83,33 @@ export class InputMatcher extends Matcher {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             this.checkComponentHasProperty(func);
+            this.checkElementHasProperty(this.state.inputSelector);
 
-            const element = this.getElement();
             const component = this.getComponent();
+            const element = this.getElement();
             let hasBeenCalled = false;
             let callValues;
 
             ObjectHelper.replaceFunction(component, func, (...args: unknown[]) => {
                 hasBeenCalled = true;
                 callValues = args.length ? args : NOTHING;
+
+                return "binding";
             });
 
             this.getFixture().detectChanges();
             ObjectHelper.restoreFunction(component, func);
 
-            // TODO: Should we also check if the return value of the function is assigned to the input property?
-            // Add .something function.
-            const input = NgHelper.getProperty(element, this.state.inputSelector, message => this.throwError(message));
+            // TODO: Maybe split this into a separate matcher, but probably not necessary.
+            const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-            return [hasBeenCalled, callValues, NOTHING];
+            return [hasBeenCalled && input === "binding", callValues, NOTHING];
         });
 
         return new ToCallWithMatcher({ ...this.state });
     }
+
+    // TODO: toCallThrough
 
     private getDescriptionModifier(): string {
         return `input '${this.state.inputSelector}'`;
