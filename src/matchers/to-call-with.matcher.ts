@@ -19,9 +19,9 @@ export class ToCallWithMatcher extends Matcher {
 
         this.appendDescription(`with '${values.join("','")}'`);
         this.setMatcher(() => {
-            const received = toCallMatcher!(values[values.length - 1])[1];
+            const [hasBeenCalled, received] = toCallMatcher!(values[values.length - 1]);
 
-            return [deepEqual(received, values), received, values];
+            return [hasBeenCalled && deepEqual(received, values), received, values];
         });
 
         return this;
