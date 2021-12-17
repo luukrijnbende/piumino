@@ -1,7 +1,7 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
+import { MatcherChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
@@ -19,7 +19,7 @@ export class OutputMatcher extends Matcher {
 
     /**
      * Expect the output of the selected element to be bound to the provided property of the fixture's component.\
-     * NOTE: Does not work for setters.
+     * NOTE: Does not work for setters if there is no getter.
      * 
      * (output)="property = $event"
      * 
@@ -29,9 +29,10 @@ export class OutputMatcher extends Matcher {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
+            
             this.dispatchEvent(payload);
 
-            // TODO: What to do if the property is a setter?
+            // TODO: What to do if the property is a setter without a getter?
 
             const component = this.getComponent();
             const componentValue = ObjectHelper.getProperty(component, property);

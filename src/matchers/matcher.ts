@@ -1,4 +1,5 @@
 import objectInspect from "object-inspect";
+import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
 import { ComponentFixtureLike, MatcherChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
 
@@ -12,14 +13,8 @@ export interface MatcherState {
     matcher?: MatcherFunction;
 }
 
-export class Matcher<NotExcludes extends string = ""> {
+export class Matcher {
     protected state: MatcherState;
-
-    // public get not(): MatcherChain<this, "not" | "build" | "execute" | NotExcludes> {
-    //     this.state.negate = true;
-
-    //     return this;
-    // }
 
     public get not(): MatcherChain<this> {
         this.state.negate = true;
@@ -112,6 +107,14 @@ export class Matcher<NotExcludes extends string = ""> {
         }
 
         return element as HTMLElement;
+    }
+
+    protected checkElementHasProperty(property: string): void {
+        const element = this.getElement();
+
+        if (!NgHelper.hasProperty(element, property)) {
+            this.throwError(`Property '${property}' does not exist on '${element.localName}''`);
+        }
     }
 
     protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): never {
