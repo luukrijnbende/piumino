@@ -23,7 +23,6 @@ export class InputMatcher extends Matcher {
      * input="value"
      * 
      * @param value - The value to compare with the input value of the selected element.
-     * @returns 
      */
     public toEqual(value: unknown): MatcherChainFinisher<this> {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());

@@ -39,9 +39,6 @@
     "object-inspect": "^1.11.1"
   },
   "devDependencies": {
-    "@angular/common": "^13.1.1",
-    "@angular/core": "^13.1.1",
-    "@angular/platform-browser": "^13.1.1",
     "@types/object-inspect": "^1.8.1",
     "@types/jest": "^27.0.3",
     "jest": "^27.4.5",

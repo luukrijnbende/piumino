@@ -1,5 +1,3 @@
-import { DebugElement } from "@angular/core";
-
 export const NOTHING = Symbol("NOTHING");
 
 export type Selector = string | HTMLElement;

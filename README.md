@@ -46,7 +46,7 @@ it("Existing test", () => {
 ## API
 ### .not
 Invert the result of the matchers.
-### .toHaveText(text)
+### .toHaveText()
 Expect the selected element to have the provided text.
 
 ```typescript
