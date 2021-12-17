@@ -1,4 +1,4 @@
-import { GenericObject, PiuminoError } from "../types";
+import { GenericObject, NOTHING } from "../types";
 
 interface DirectiveMetadata {
     inputs?: Record<string, string>;
@@ -6,7 +6,7 @@ interface DirectiveMetadata {
 }
 
 export class NgHelper {
-    public static getProperty(element: HTMLElement, property: string, throwError?: (message: string) => void): any {
+    public static getProperty(element: HTMLElement, property: string): any {
         if (element.hasAttribute(property)) {
             return element.getAttribute(property);
         }
@@ -41,9 +41,11 @@ export class NgHelper {
             }
         }
 
-        if (throwError) {
-            throwError(`Property '${property}' not found on '${element.localName}''`);
-        }
+        return NOTHING;
+    }
+
+    public static hasProperty(element: HTMLElement, property: string): boolean {
+        return NgHelper.getProperty(element, property) !== NOTHING;
     }
 
     private static getComponent(element: HTMLElement): GenericObject {
