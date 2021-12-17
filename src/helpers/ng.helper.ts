@@ -49,19 +49,16 @@ export class NgHelper {
     }
 
     private static getComponent(element: HTMLElement): GenericObject {
-        // @ts-ignore
-        return window.ng.getComponent(element);
+        return (window as any).ng.getComponent(element);
     }
 
     private static getDirectives(element: HTMLElement): GenericObject[] {
-        // @ts-ignore
-        return window.ng.getDirectives(element);
+        return (window as any).ng.getDirectives(element);
     }
 
     private static getDirectiveMetadata(directive: GenericObject): DirectiveMetadata {
         // Function does not exist before Angular 12.
-        // @ts-ignore
-        return window.ng.getDirectiveMetadata ? window.ng.getDirectiveMetadata(directive) : {};
+        return (window as any).ng.getDirectiveMetadata ? (window as any).ng.getDirectiveMetadata(directive) : {};
     }
 
     private static getDirectivePropertyMap(directive: GenericObject): Record<string, string> {
