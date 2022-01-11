@@ -1,4 +1,4 @@
-import { MatcherChain, MatcherChainFinisher, MatcherChainStarter } from "../types";
+import { MatcherChainFinisher, MatcherChainStarter } from "../types";
 import { InputMatcher } from "./input.matcher";
 import { Matcher } from "./matcher";
 import { OutputMatcher } from "./output.matcher";
@@ -30,7 +30,7 @@ export class BaseMatcher extends Matcher {
     public toHaveText(text: string): MatcherChainFinisher<this> {
         this.setDescription(`have text '${text}'`);
         this.setMatcher(() => {
-            const elementText = this.getElement().textContent?.trim() ?? "";
+            const elementText = this.getElement().nativeElement.textContent?.trim() ?? "";
 
             return [elementText === text, elementText, text];
         });
@@ -46,7 +46,7 @@ export class BaseMatcher extends Matcher {
     public toHaveTextCaseInsensitive(text: string): MatcherChainFinisher<this> {
         this.setDescription(`have case insensitive text '${text.toLowerCase()}'`);
         this.setMatcher(() => {
-            const elementText = this.getElement().textContent?.trim().toLowerCase() ?? "";
+            const elementText = this.getElement().nativeElement.textContent?.trim().toLowerCase() ?? "";
 
             return [elementText === text.toLowerCase(), elementText, text.toLowerCase()];
         });
@@ -60,7 +60,7 @@ export class BaseMatcher extends Matcher {
     public toBePresent(): MatcherChainFinisher<this> {
         this.setDescription("be present");
         this.setMatcher(() => {
-            const element = this.getElement(false);
+            const element = this.getElement(false).nativeElement;
 
             return [!!element && element.ownerDocument === element.getRootNode({ composed: true })];
         });
@@ -74,16 +74,15 @@ export class BaseMatcher extends Matcher {
     public toBeVisible(): MatcherChainFinisher<this> {
         this.setDescription("be visible");
         this.setMatcher(() => {
-            const element = this.getElement(false);
-            const computedStyle = !!element && getComputedStyle(element);
+            const element = this.getElement(false).nativeElement;
+            const computedStyle = element ? getComputedStyle(element) : null;
 
-            const isStyleVisible = !!element
-                && computedStyle.display !== "none"
-                && computedStyle.visibility !== "hidden"
-                && computedStyle.visibility !== "collapsed"
-                && computedStyle.opacity !== "0";
-            const isAttributeVisible = !!element && !element.hasAttribute("hidden");
-            const isInDocument = !!element && element.ownerDocument === element.getRootNode({ composed: true });
+            const isStyleVisible = computedStyle?.display !== "none"
+                && computedStyle?.visibility !== "hidden"
+                && computedStyle?.visibility !== "collapsed"
+                && computedStyle?.opacity !== "0";
+            const isAttributeVisible = !element?.hasAttribute("hidden");
+            const isInDocument = element?.ownerDocument === element?.getRootNode({ composed: true });
 
             return [isStyleVisible && isAttributeVisible && isInDocument];
         });

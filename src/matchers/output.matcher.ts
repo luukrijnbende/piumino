@@ -1,3 +1,4 @@
+import { DebugElement } from "@angular/core";
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
@@ -94,17 +95,17 @@ export class OutputMatcher extends Matcher {
         }
     }
 
-    private dispatchNativeEvent(element: HTMLElement, payload: unknown): boolean {
+    private dispatchNativeEvent(element: DebugElement, payload: unknown): boolean {
         const [outputSelector, eventType] = this.state.outputSelector.split(".");
 
         if (payload instanceof Event) {
-            return element.dispatchEvent(payload);
+            return element.nativeElement.dispatchEvent(payload);
         }
 
         if (["keydown", "keyup"].includes(outputSelector)) {
-            return element.dispatchEvent(new KeyboardEvent(outputSelector, { key: eventType }));
+            return element.nativeElement.dispatchEvent(new KeyboardEvent(outputSelector, { key: eventType }));
         }
 
-        return element.dispatchEvent(new Event(outputSelector));
+        return element.nativeElement.dispatchEvent(new Event(outputSelector));
     }
 }

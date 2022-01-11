@@ -1,3 +1,5 @@
+import { DebugElement } from "@angular/core";
+
 export const NOTHING = Symbol("NOTHING");
 
 export type Selector = string | HTMLElement;
@@ -12,6 +14,7 @@ export type MatcherChainFinisher<T extends GenericObject> = Pick<T, "build" | "e
 
 export interface ComponentFixtureLike {
     componentInstance: GenericObject;
+    debugElement: DebugElement;
     nativeElement: HTMLElement;
     point?: {
         componentInstance: GenericObject;
