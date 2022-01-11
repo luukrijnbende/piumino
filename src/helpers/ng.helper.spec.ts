@@ -1,3 +1,4 @@
+import { DebugElement } from "@angular/core";
 import { NOTHING } from "../types";
 import { NgHelper } from "./ng.helper";
 
@@ -12,8 +13,8 @@ describe("NgHelper", () => {
 
     describe("getProperty", () => {
         it("returns the value of an attribute property", () => {
-            const element = document.createElement("div");
-            element.setAttribute("attributeTest", "expected");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            element.nativeElement.setAttribute("attributeTest", "expected");
 
             expect(NgHelper.getProperty(element, "attributeTest")).toBe("expected");
         });
@@ -23,7 +24,7 @@ describe("NgHelper", () => {
                 componentTest: "expected"
             });
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
             expect(NgHelper.getProperty(element, "componentTest")).toBe("expected");
         });
 
@@ -36,7 +37,7 @@ describe("NgHelper", () => {
                 outputs: { componentTestNamedOutput: "componentTest" }
             });
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
 
             expect(NgHelper.getProperty(element, "componentTestNamedInput")).toBe("expected");
             expect(NgHelper.getProperty(element, "componentTestNamedOutput")).toBe("expected");
@@ -47,7 +48,8 @@ describe("NgHelper", () => {
                 directiveTest: "expected"
             }]);
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+
             expect(NgHelper.getProperty(element, "directiveTest")).toBe("expected");
         });
 
@@ -60,14 +62,14 @@ describe("NgHelper", () => {
                 outputs: { directiveTestNamedOutput: "directiveTest" }
             });
 
-            const element = document.createElement("div");
-            
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+
             expect(NgHelper.getProperty(element, "directiveTestNamedInput")).toBe("expected");
             expect(NgHelper.getProperty(element, "directiveTestNamedOutput")).toBe("expected");
         });
 
         it("returns NOTHING if nothing is found", () => {
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
 
             expect(NgHelper.getProperty(element, "test")).toBe(NOTHING);
         });
@@ -75,8 +77,8 @@ describe("NgHelper", () => {
 
     describe("hasProperty", () => {
         it("returns true if the property is present as an attribute", () => {
-            const element = document.createElement("div");
-            element.setAttribute("attributeTest", "expected");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            element.nativeElement.setAttribute("attributeTest", "expected");
 
             expect(NgHelper.hasProperty(element, "attributeTest")).toBe(true);
         });
@@ -86,7 +88,8 @@ describe("NgHelper", () => {
                 componentTest: "expected"
             });
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+
             expect(NgHelper.hasProperty(element, "componentTest")).toBe(true);
         });
 
@@ -99,7 +102,7 @@ describe("NgHelper", () => {
                 outputs: { componentTestNamedOutput: "componentTest" }
             });
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
 
             expect(NgHelper.hasProperty(element, "componentTestNamedInput")).toBe(true);
             expect(NgHelper.hasProperty(element, "componentTestNamedOutput")).toBe(true);
@@ -110,7 +113,8 @@ describe("NgHelper", () => {
                 directiveTest: "expected"
             }]);
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
+
             expect(NgHelper.hasProperty(element, "directiveTest")).toBe(true);
         });
 
@@ -123,14 +127,14 @@ describe("NgHelper", () => {
                 outputs: { directiveTestNamedOutput: "directiveTest" }
             });
 
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
             
             expect(NgHelper.hasProperty(element, "directiveTestNamedInput")).toBe(true);
             expect(NgHelper.hasProperty(element, "directiveTestNamedOutput")).toBe(true);
         });
 
         it("returns false if the property is not present is found", () => {
-            const element = document.createElement("div");
+            const element = { nativeElement: document.createElement("div") } as DebugElement;
 
             expect(NgHelper.hasProperty(element, "test")).toBe(false);
         });

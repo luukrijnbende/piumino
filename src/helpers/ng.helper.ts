@@ -1,69 +1,48 @@
+import { DebugElement, Type, ɵReflectionCapabilities } from "@angular/core";
 import { GenericObject, NOTHING } from "../types";
-
-interface DirectiveMetadata {
-    inputs?: Record<string, string>;
-    outputs?: Record<string, string>;
-}
+import { ObjectHelper } from "./object.helper";
 
 export class NgHelper {
-    public static getProperty(element: HTMLElement, property: string): any {
-        if (element.hasAttribute(property)) {
-            return element.getAttribute(property);
+    private static reflectionCapabilities = new ɵReflectionCapabilities();
+
+    public static getProperty(element: DebugElement, property: string): any {
+        if (element.nativeElement.hasAttribute(property)) {
+            return element.nativeElement.getAttribute(property);
         }
 
-        const component = NgHelper.getComponent(element);
-        
-        if (component) {
-            const propertyMap = NgHelper.getDirectivePropertyMap(component);
+        for (const token of element.providerTokens) {
+            const provider = ObjectHelper.isObject(token) && token.provide ? token.provide : token;
+            const instance = element.injector.get(provider as Type<any>);
+            const propertyMap = NgHelper.getDirectivePropertyMap(instance);
 
-            if (property in component) {
-                return component[property];
-            }
-
-            if (propertyMap[property] in component) {
-                return component[propertyMap[property]];
-            }
-        }
-
-        const directives = NgHelper.getDirectives(element);
-
-        if (directives.length) {
-            for (const directive of directives) {
-                const propertyMap = NgHelper.getDirectivePropertyMap(directive);
-    
-                if (property in directive) {
-                    return directive[property];
-                }
-
-                if (propertyMap[property] in directive) {
-                    return directive[propertyMap[property]];
-                }
+            if (propertyMap[property] in instance) {
+                return instance[propertyMap[property]];
             }
         }
 
         return NOTHING;
     }
 
-    public static hasProperty(element: HTMLElement, property: string): boolean {
+    public static hasProperty(element: DebugElement, property: string): boolean {
         return NgHelper.getProperty(element, property) !== NOTHING;
     }
 
-    private static getComponent(element: HTMLElement): GenericObject {
-        return (window as any).ng.getComponent(element);
-    }
-
-    private static getDirectives(element: HTMLElement): GenericObject[] {
-        return (window as any).ng.getDirectives(element);
-    }
-
-    private static getDirectiveMetadata(directive: GenericObject): DirectiveMetadata {
-        // Function does not exist before Angular 12.
-        return (window as any).ng.getDirectiveMetadata ? (window as any).ng.getDirectiveMetadata(directive) : {};
-    }
-
     private static getDirectivePropertyMap(directive: GenericObject): Record<string, string> {
-        const metadata = NgHelper.getDirectiveMetadata(directive);
+        const propertyMap: Record<string, string> = {};
+        const metadata = this.reflectionCapabilities.propMetadata(directive.constructor);
 
-        return metadata ? { ...metadata.inputs, ...metadata.outputs } : {};
+        if (metadata) {
+            for (const [property, decorators] of Object.entries(metadata)) {
+                propertyMap[property] = property;
+
+                for (const decorator of decorators) {
+                    if (decorator.bindingPropertyName) {
+                        propertyMap[decorator.bindingPropertyName] = property;
+                    }
+                }
+            }
+        }
+
+        return propertyMap;
     }
 }

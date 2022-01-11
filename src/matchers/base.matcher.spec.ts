@@ -1,3 +1,4 @@
+import { DebugElement } from "@angular/core";
 import { ComponentFixtureLike } from "../types";
 import { BaseMatcher } from "./base.matcher";
 import { InputMatcher } from "./input.matcher";
@@ -11,6 +12,7 @@ describe("BaseMatcher", () => {
     beforeEach(() => {
         fixture = {
             componentInstance: {},
+            debugElement: {} as DebugElement,
             nativeElement: {
                 querySelector: jest.fn(() => ({}))
             } as unknown as HTMLElement,

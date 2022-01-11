@@ -1,3 +1,4 @@
+import { DebugElement } from "@angular/core";
 import objectInspect from "object-inspect";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
@@ -93,27 +94,27 @@ export class Matcher {
         }
     }
 
-    protected getElement(throwError = true): HTMLElement {
+    protected getElement(throwError = true): DebugElement {
         const fixture = this.getFixture();
 
         fixture.detectChanges();
 
-        const element: HTMLElement | null = this.state.selector instanceof HTMLElement
-            ? this.state.selector
-            : fixture.nativeElement.querySelector(this.state.selector as string);
+        // TODO: support selector as DebugElement or HTMLElement.
+        const element = fixture.debugElement.query(el =>
+            el.nativeElement?.matches?.(this.state.selector))
 
         if (throwError && !element) {
             return this.throwError(`Could not find element with selector '${this.state.selector}'`);
         }
 
-        return element as HTMLElement;
+        return element;
     }
 
     protected checkElementHasProperty(property: string): void {
         const element = this.getElement();
 
         if (!NgHelper.hasProperty(element, property)) {
-            this.throwError(`Property '${property}' does not exist on '${element.localName}''`);
+            this.throwError(`Property '${property}' does not exist on '${element.name}''`);
         }
     }
 
