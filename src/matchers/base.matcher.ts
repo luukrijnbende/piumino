@@ -60,7 +60,7 @@ export class BaseMatcher extends Matcher {
     public toBePresent(): MatcherChainFinisher<this> {
         this.setDescription("be present");
         this.setMatcher(() => {
-            const element = this.getElement(false).nativeElement;
+            const element = this.getElement(false)?.nativeElement;
 
             return [!!element && element.ownerDocument === element.getRootNode({ composed: true })];
         });
@@ -74,15 +74,19 @@ export class BaseMatcher extends Matcher {
     public toBeVisible(): MatcherChainFinisher<this> {
         this.setDescription("be visible");
         this.setMatcher(() => {
-            const element = this.getElement(false).nativeElement;
-            const computedStyle = element ? getComputedStyle(element) : null;
+            const element = this.getElement(false)?.nativeElement;
 
-            const isStyleVisible = computedStyle?.display !== "none"
-                && computedStyle?.visibility !== "hidden"
-                && computedStyle?.visibility !== "collapsed"
-                && computedStyle?.opacity !== "0";
-            const isAttributeVisible = !element?.hasAttribute("hidden");
-            const isInDocument = element?.ownerDocument === element?.getRootNode({ composed: true });
+            if (!element) {
+                return [false];
+            }
+
+            const computedStyle = getComputedStyle(element);
+            const isStyleVisible = computedStyle.display !== "none"
+                && computedStyle.visibility !== "hidden"
+                && computedStyle.visibility !== "collapsed"
+                && computedStyle.opacity !== "0";
+            const isAttributeVisible = !element.hasAttribute("hidden");
+            const isInDocument = element.ownerDocument === element.getRootNode({ composed: true });
 
             return [isStyleVisible && isAttributeVisible && isInDocument];
         });
