@@ -1,4 +1,3 @@
-import { DebugElement } from "@angular/core";
 import { ComponentFixtureLike } from "../types";
 import { BaseMatcher } from "./base.matcher";
 import { InputMatcher } from "./input.matcher";
@@ -12,17 +11,16 @@ describe("BaseMatcher", () => {
     beforeEach(() => {
         fixture = {
             componentInstance: {},
-            debugElement: {} as DebugElement,
-            nativeElement: {
-                querySelector: jest.fn(() => ({}))
-            } as unknown as HTMLElement,
+            debugElement: {
+                query: jest.fn(() => ({ nativeElement: {} }))
+            } as any,
             detectChanges: jest.fn()
-        }
+        };
         matcherState = {
             selector: "selector",
             getFixture: jest.fn(() => fixture)
-        }
-    })
+        };
+    });
 
     describe("input", () => {
         it("should return an instance of InputMatcher", () => {
@@ -65,9 +63,11 @@ describe("BaseMatcher", () => {
             ${" text "} | ${true}
             ${"other"}  | ${false}
         `("should return $expected for text '$text'", ({ text, expected }) => {
-            fixture.nativeElement.querySelector = jest.fn(() => ({
-                textContent: text
-            }));
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: {
+                    textContent: text
+                }
+            })) as any;
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveText("text");
@@ -80,6 +80,12 @@ describe("BaseMatcher", () => {
             baseMatcher.toHaveText("text");
 
             expect(matcherState.matcher!()).toEqual([false, "", "text"]);
+        });
+
+        it("should return an instance of BaseMatcher", () => {
+            const baseMatcher = new BaseMatcher(matcherState);
+    
+            expect(baseMatcher.toHaveText("text")).toBeInstanceOf(BaseMatcher);
         });
     });
 
@@ -106,9 +112,11 @@ describe("BaseMatcher", () => {
             ${" tExT "} | ${true}
             ${"OtHeR"}  | ${false}
         `("should return $expected for text '$text'", ({ text, expected }) => {
-            fixture.nativeElement.querySelector = jest.fn(() => ({
-                textContent: text
-            }));
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: {
+                    textContent: text
+                }
+            })) as any;
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveTextCaseInsensitive("TeXt");
@@ -121,6 +129,12 @@ describe("BaseMatcher", () => {
             baseMatcher.toHaveTextCaseInsensitive("TeXt");
 
             expect(matcherState.matcher!()).toEqual([false, "", "text"]);
+        });
+
+        it("should return an instance of BaseMatcher", () => {
+            const baseMatcher = new BaseMatcher(matcherState);
+    
+            expect(baseMatcher.toHaveTextCaseInsensitive("text")).toBeInstanceOf(BaseMatcher);
         });
     });
 
@@ -146,7 +160,9 @@ describe("BaseMatcher", () => {
                 getRootNode: jest.fn(() => document)
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
@@ -161,7 +177,9 @@ describe("BaseMatcher", () => {
                 getRootNode: jest.fn(() => new Document())
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
@@ -171,12 +189,18 @@ describe("BaseMatcher", () => {
         });
 
         it("should return false when the selected element is not found", () => {
-            fixture.nativeElement.querySelector = jest.fn(() => undefined);
+            fixture.debugElement.query = jest.fn(() => undefined) as any;
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
 
             expect(matcherState.matcher!()).toEqual([false]);
+        });
+
+        it("should return an instance of BaseMatcher", () => {
+            const baseMatcher = new BaseMatcher(matcherState);
+    
+            expect(baseMatcher.toBePresent()).toBeInstanceOf(BaseMatcher);
         });
     });
 
@@ -210,7 +234,9 @@ describe("BaseMatcher", () => {
                 hasAttribute: jest.fn(() => false)
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
             jest.spyOn(global, "getComputedStyle").mockReturnValue(style);
 
             const baseMatcher = new BaseMatcher(matcherState);
@@ -231,7 +257,9 @@ describe("BaseMatcher", () => {
                 hasAttribute: jest.fn(() => hidden)
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
             jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
@@ -248,7 +276,9 @@ describe("BaseMatcher", () => {
                 hasAttribute: jest.fn(() => false)
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
             jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
@@ -265,7 +295,9 @@ describe("BaseMatcher", () => {
                 hasAttribute: jest.fn(() => false)
             };
 
-            fixture.nativeElement.querySelector = jest.fn(() => element);
+            fixture.debugElement.query = jest.fn(() => ({
+                nativeElement: element
+            })) as any;
             jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
@@ -276,13 +308,19 @@ describe("BaseMatcher", () => {
         });
 
         it("should return false when the selected element is not found", () => {
-            fixture.nativeElement.querySelector = jest.fn(() => undefined);
+            fixture.debugElement.query = jest.fn(() => undefined) as any;
             jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
             expect(matcherState.matcher!()).toEqual([false]);
+        });
+
+        it("should return an instance of BaseMatcher", () => {
+            const baseMatcher = new BaseMatcher(matcherState);
+    
+            expect(baseMatcher.toBeVisible()).toBeInstanceOf(BaseMatcher);
         });
     });
 });
