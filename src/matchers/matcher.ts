@@ -14,7 +14,7 @@ export interface MatcherState {
     matcher?: MatcherFunction;
 }
 
-export class Matcher {
+export abstract class Matcher {
     protected state: MatcherState;
 
     public get not(): MatcherChain<this> {

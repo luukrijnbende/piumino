@@ -15,7 +15,6 @@ export type MatcherChainFinisher<T extends GenericObject> = Pick<T, "build" | "e
 export interface ComponentFixtureLike {
     componentInstance: GenericObject;
     debugElement: DebugElement;
-    nativeElement: HTMLElement;
     point?: {
         componentInstance: GenericObject;
     };

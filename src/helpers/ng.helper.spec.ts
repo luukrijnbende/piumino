@@ -1,75 +1,58 @@
-import { DebugElement } from "@angular/core";
+const propMetadata = jest.fn();
+
+jest.mock("@angular/core", () => ({
+    ...jest.requireActual("@angular/core"),
+    ɵReflectionCapabilities: jest.fn(() => ({
+        propMetadata
+    }))
+}));
+
 import { NOTHING } from "../types";
 import { NgHelper } from "./ng.helper";
 
 describe("NgHelper", () => {
-    beforeEach(() => {
-        (window as any).ng = {
-            getComponent: jest.fn(() => {}),
-            getDirectives: jest.fn(() => [{}]),
-            getDirectiveMetadata: jest.fn(() => {})
+    const createMockElement = (providerInstance: any, useProvide = false) => ({
+        nativeElement: document.createElement("div"),
+        providerTokens: [useProvide ? { provide: providerInstance } : "some token"],
+        injector: {
+            get: jest.fn(() => providerInstance)
         }
-    });
+    }) as any;
+    const mockPropertyMap = (map: Record<string, string>) => {
+        propMetadata.mockReturnValueOnce(Object.entries(map).reduce((metadata, kv: any) => {
+            metadata[kv[1]] = [{ bindingPropertyName: kv[0] === kv[1] ? undefined : kv[0] }];
+            return metadata;
+        }, {} as any));
+    };
 
     describe("getProperty", () => {
         it("returns the value of an attribute property", () => {
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            const element = createMockElement({});
             element.nativeElement.setAttribute("attributeTest", "expected");
 
             expect(NgHelper.getProperty(element, "attributeTest")).toBe("expected");
         });
 
-        it("returns the value of a component property", () => {
-            (window as any).ng.getComponent.mockReturnValue({
+        it("returns the value of an instance property", () => {
+            const element = createMockElement({
                 componentTest: "expected"
             });
+            mockPropertyMap({ componentTest: "componentTest" });
 
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
             expect(NgHelper.getProperty(element, "componentTest")).toBe("expected");
         });
 
-        it("returns the value of a named component property", () => {
-            (window as any).ng.getComponent.mockReturnValue({
+        it("returns the value of a named instance property", () => {
+            const element = createMockElement({
                 componentTest: "expected"
             });
-            (window as any).ng.getDirectiveMetadata.mockReturnValue({
-                inputs: { componentTestNamedInput: "componentTest" },
-                outputs: { componentTestNamedOutput: "componentTest" }
-            });
+            mockPropertyMap({ componentTestNamed: "componentTest" });
 
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-
-            expect(NgHelper.getProperty(element, "componentTestNamedInput")).toBe("expected");
-            expect(NgHelper.getProperty(element, "componentTestNamedOutput")).toBe("expected");
-        });
-
-        it("returns the value of a directive property", () => {
-            (window as any).ng.getDirectives.mockReturnValue([{
-                directiveTest: "expected"
-            }]);
-
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-
-            expect(NgHelper.getProperty(element, "directiveTest")).toBe("expected");
-        });
-
-        it("returns the value of a named directive property", () => {
-            (window as any).ng.getDirectives.mockReturnValue([{
-                directiveTest: "expected"
-            }]);
-            (window as any).ng.getDirectiveMetadata.mockReturnValue({
-                inputs: { directiveTestNamedInput: "directiveTest" },
-                outputs: { directiveTestNamedOutput: "directiveTest" }
-            });
-
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-
-            expect(NgHelper.getProperty(element, "directiveTestNamedInput")).toBe("expected");
-            expect(NgHelper.getProperty(element, "directiveTestNamedOutput")).toBe("expected");
+            expect(NgHelper.getProperty(element, "componentTestNamed")).toBe("expected");
         });
 
         it("returns NOTHING if nothing is found", () => {
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            const element = createMockElement({});
 
             expect(NgHelper.getProperty(element, "test")).toBe(NOTHING);
         });
@@ -77,66 +60,34 @@ describe("NgHelper", () => {
 
     describe("hasProperty", () => {
         it("returns true if the property is present as an attribute", () => {
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            const element = createMockElement({}, true);
             element.nativeElement.setAttribute("attributeTest", "expected");
 
             expect(NgHelper.hasProperty(element, "attributeTest")).toBe(true);
         });
 
-        it("returns true if the property is present on the component", () => {
-            (window as any).ng.getComponent.mockReturnValue({
+        it("returns true if the property is present on the instance", () => {
+            const element = createMockElement({
                 componentTest: "expected"
-            });
-
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
+            }, true);
+            mockPropertyMap({ componentTest: "componentTest" });
 
             expect(NgHelper.hasProperty(element, "componentTest")).toBe(true);
         });
 
-        it("returns true if the property is present on the component as a named input or output", () => {
-            (window as any).ng.getComponent.mockReturnValue({
+        it("returns true if the property is present on the instance as a named property", () => {
+            const element = createMockElement({
                 componentTest: "expected"
-            });
-            (window as any).ng.getDirectiveMetadata.mockReturnValue({
-                inputs: { componentTestNamedInput: "componentTest" },
-                outputs: { componentTestNamedOutput: "componentTest" }
-            });
+            }, true);
+            mockPropertyMap({ componentTestNamed: "componentTest" });
 
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-
-            expect(NgHelper.hasProperty(element, "componentTestNamedInput")).toBe(true);
-            expect(NgHelper.hasProperty(element, "componentTestNamedOutput")).toBe(true);
+            expect(NgHelper.hasProperty(element, "componentTestNamed")).toBe(true);
         });
 
-        it("returns true if the property is present on a directive", () => {
-            (window as any).ng.getDirectives.mockReturnValue([{
-                directiveTest: "expected"
-            }]);
-
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-
-            expect(NgHelper.hasProperty(element, "directiveTest")).toBe(true);
-        });
-
-        it("returns true if the property is present on a directive as a named input or output", () => {
-            (window as any).ng.getDirectives.mockReturnValue([{
-                directiveTest: "expected"
-            }]);
-            (window as any).ng.getDirectiveMetadata.mockReturnValue({
-                inputs: { directiveTestNamedInput: "directiveTest" },
-                outputs: { directiveTestNamedOutput: "directiveTest" }
-            });
-
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
-            
-            expect(NgHelper.hasProperty(element, "directiveTestNamedInput")).toBe(true);
-            expect(NgHelper.hasProperty(element, "directiveTestNamedOutput")).toBe(true);
-        });
-
-        it("returns false if the property is not present is found", () => {
-            const element = { nativeElement: document.createElement("div") } as DebugElement;
+        it("returns false if the property is not present", () => {
+            const element = createMockElement({}, true);
 
             expect(NgHelper.hasProperty(element, "test")).toBe(false);
         });
     });
-})
+});
