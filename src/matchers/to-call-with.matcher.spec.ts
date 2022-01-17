@@ -57,8 +57,8 @@ describe("ToCallWithMatcher", () => {
             ${["value"]}            | ${["value"]}            | ${true}
             ${["value"]}            | ${["value1"]}           | ${false}
             ${["value1", "value2"]} | ${["value1", "value2"]} | ${true}
-            ${[{ value: 1 }]}       | ${[{ value: 1 }]}         | ${true}
-            ${[{ value: 1 }]}       | ${[{ value: 2 }]}         | ${false}
+            ${[{ value: 1 }]}       | ${[{ value: 1 }]}       | ${true}
+            ${[{ value: 1 }]}       | ${[{ value: 2 }]}       | ${false}
         `("should return $expected for '$values' and '$received'", ({ values, received, expected }) => {
             matcher.mockReturnValueOnce([true, received]);
 
