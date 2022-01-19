@@ -1,11 +1,11 @@
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike } from "../types";
+import { ComponentFixtureLike, NOTHING } from "../types";
 import { InputMatcher, InputMatcherState } from "./input.matcher";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
-describe("Matcher", () => {
+describe("InputMatcher", () => {
     let fixture: ComponentFixtureLike;
     let matcherState: InputMatcherState;
 
@@ -253,6 +253,34 @@ describe("Matcher", () => {
             matcherState.matcher?.();
 
             expect(NgHelper.getProperty).toHaveBeenCalledWith(element, "input");
+        });
+
+        it.each`
+            callValues    | binding      | expected | expectedCallValues
+            ${[]}         | ${"binding"} | ${true}  | ${NOTHING}
+            ${[]}         | ${"failed"}  | ${false} | ${NOTHING}
+            ${["value1"]} | ${"binding"} | ${true}  | ${["value1"]}
+            ${["value1"]} | ${"failed"}  | ${false} | ${["value1"]}
+        `("should return $expected if the replaced function has been called with $callValues and input is $binding", ({ callValues, binding, expected, expectedCallValues }) => {
+            let replacedFunction: (...args: unknown[]) => void;
+
+            jest.spyOn(ObjectHelper, "replaceFunction").mockImplementation((c,f,func) => replacedFunction = func);
+            jest.spyOn(NgHelper, "getProperty").mockReturnValue(binding);
+            (fixture.detectChanges as jest.Mock).mockImplementation(() => replacedFunction?.(...callValues));
+
+            const inputMatcher = new InputMatcher(matcherState);
+            inputMatcher.toCall("value");
+            
+            expect(matcherState.matcher?.()).toEqual([expected, expectedCallValues, NOTHING]);
+        });
+
+        it("should return false if the replaced function has not been called", () => {
+            jest.spyOn(NgHelper, "getProperty").mockReturnValue("binding");
+
+            const inputMatcher = new InputMatcher(matcherState);
+            inputMatcher.toCall("value");
+            
+            expect(matcherState.matcher?.()).toEqual([false, undefined, NOTHING]);
         });
 
         it("should throw if the component doesn't have the bounding property", () => {           

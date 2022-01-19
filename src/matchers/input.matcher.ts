@@ -90,7 +90,6 @@ export class InputMatcher extends Matcher {
             let callValues;
 
             ObjectHelper.replaceFunction(component, func, (...args: unknown[]) => {
-                // TODO: Test internals.
                 hasBeenCalled = true;
                 callValues = args.length ? args : NOTHING;
 
@@ -103,7 +102,6 @@ export class InputMatcher extends Matcher {
             // TODO: Maybe split this into a separate matcher, but probably not necessary.
             const input = NgHelper.getProperty(element, this.state.inputSelector);
 
-            // TODO: Test return value.
             return [hasBeenCalled && input === "binding", callValues, NOTHING];
         });
 
