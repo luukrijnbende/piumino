@@ -118,6 +118,18 @@ describe("Objecthelper", () => {
             expect(existingFunc).toHaveBeenCalled();
             expect(replacerFunc).not.toHaveBeenCalled();
         });
+
+        it("does not restore the function if it was never replaced", () => {
+            const existingFunc = jest.fn();
+            const obj = {
+                func: existingFunc
+            };
+
+            ObjectHelper.restoreFunction(obj, "func");
+            obj.func();
+
+            expect(existingFunc).toHaveBeenCalled();
+        });
     });
 
     describe("isObject", () => {

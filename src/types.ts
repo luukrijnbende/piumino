@@ -2,9 +2,10 @@ import { DebugElement } from "@angular/core";
 
 export const NOTHING = Symbol("NOTHING");
 
-export type Selector = string | HTMLElement;
+export type Selector = string;
 export type TestDefinition = [string, () => void];
-export type GenericObject = Record<string, any>;
+export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks MatcherChainFinisher.
+export type GenericFunction = (...args: unknown[]) => unknown;
 export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
 export type MatcherChainStarters = "input" | "output";
 export type MatcherChainStarter<T extends GenericObject> = Omit<T, "build" | "execute">;
