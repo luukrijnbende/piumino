@@ -1,6 +1,6 @@
 {
   "name": "piumino",
-  "version": "2.1.6",
+  "version": "2.2.0",
   "description": "Piumino, meaning duvet in Italian, is like a duvet over the bed called Angular TestBed. It provides test helpers to test trivial things like inputs and outputs with a single line.",
   "author": "Luuk Rijnbende",
   "license": "ISC",

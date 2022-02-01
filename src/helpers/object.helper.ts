@@ -1,10 +1,9 @@
-type Obj = Record<string, any>;
-type Function = (...args: any[]) => void;
+import { GenericFunction, GenericObject } from "../types";
 
 export class ObjectHelper {
-    private static originalFunctions: Map<string, Function> = new Map();
+    private static originalFunctions: Map<string, GenericFunction> = new Map();
 
-    public static getProperty(obj: Obj, path: string | string[]): any {
+    public static getProperty(obj: GenericObject, path: string | string[]): unknown {
         const keys = ObjectHelper.pathToKeys(path);
         const value = obj[keys[0]];
 
@@ -15,38 +14,41 @@ export class ObjectHelper {
         return value;
     }
 
-    public static setProperty(obj: Obj, path: string | string[], value: any): void {
+    public static setProperty(obj: GenericObject, path: string | string[], value: unknown): void {
         const keys = ObjectHelper.pathToKeys(path);
         const lastKey = keys.pop();
         const parent = keys.length ? this.getProperty(obj, keys) : obj;
 
         if (lastKey) {
-            parent[lastKey] = value;
+            (parent as GenericObject)[lastKey] = value;
         }
     }
 
-    public static hasProperty(obj: Obj, path: string | string[]): boolean {
+    public static hasProperty(obj: GenericObject, path: string | string[]): boolean {
         const keys = ObjectHelper.pathToKeys(path);
         const lastKey = keys.pop();
         const parent = keys.length ? this.getProperty(obj, keys) : obj;
 
         if (lastKey) {
-            return lastKey in parent;
+            return lastKey in (parent as GenericObject);
         }
         
         return false;
     }
 
-    public static replaceFunction(obj: Obj, func: string, implementation: Function): void {
-        ObjectHelper.originalFunctions.set(this.getOriginalFunctionKey(obj, func), ObjectHelper.getProperty(obj, func));
+    public static replaceFunction(obj: GenericObject, func: string, implementation: GenericFunction): void {
+        ObjectHelper.originalFunctions.set(this.getOriginalFunctionKey(obj, func), ObjectHelper.getProperty(obj, func) as GenericFunction);
         obj[func] = implementation;
     }
 
-    public static restoreFunction(obj: Obj, func: string): void {
+    public static restoreFunction(obj: GenericObject, func: string): void {
         const originalFunctionKey = this.getOriginalFunctionKey(obj, func);
+        const originalImplementation = ObjectHelper.originalFunctions.get(originalFunctionKey);
 
-        ObjectHelper.setProperty(obj, func, ObjectHelper.originalFunctions.get(originalFunctionKey));
-        ObjectHelper.originalFunctions.delete(originalFunctionKey);
+        if (originalImplementation) {
+            ObjectHelper.setProperty(obj, func, originalImplementation);
+            ObjectHelper.originalFunctions.delete(originalFunctionKey);
+        }
     }
 
     public static isObject(obj: unknown): boolean {
@@ -57,7 +59,7 @@ export class ObjectHelper {
         return Array.isArray(path) ? path : path.replace(/\[(\d)\]/g, ".$1").split(".");
     }
 
-    private static getOriginalFunctionKey(obj: Obj, func: string): string {
+    private static getOriginalFunctionKey(obj: GenericObject, func: string): string {
         return `${obj.constructor.name}:func`;
     }
 }

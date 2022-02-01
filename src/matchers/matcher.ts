@@ -99,7 +99,7 @@ export abstract class Matcher {
 
         fixture.detectChanges();
 
-        // TODO: support selector as DebugElement or HTMLElement.
+        // TODO: support selector as DebugElement and/or HTMLElement.
         const element = fixture.debugElement.query(el =>
             el.nativeElement?.matches?.(this.state.selector))
 
