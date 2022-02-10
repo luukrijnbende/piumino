@@ -1,4 +1,4 @@
-import { MatcherChainFinisher, MatcherChainStarter } from "../types";
+import { FluentChainFinisher, FluentChainStarter } from "../types";
 import { InputMatcher } from "./input.matcher";
 import { Matcher } from "./matcher";
 import { OutputMatcher } from "./output.matcher";
@@ -9,7 +9,7 @@ export class BaseMatcher extends Matcher {
      * 
      * @param inputSelector - The selector to find the input.
      */
-    public input(inputSelector: string): MatcherChainStarter<InputMatcher> {
+    public input(inputSelector: string): FluentChainStarter<InputMatcher> {
         return new InputMatcher({ ...this.state, inputSelector });
     }
 
@@ -18,7 +18,7 @@ export class BaseMatcher extends Matcher {
      * 
      * @param outputSelector - The selector to find the output.
      */
-    public output(outputSelector: string): MatcherChainStarter<OutputMatcher> {
+    public output(outputSelector: string): FluentChainStarter<OutputMatcher> {
         return new OutputMatcher({ ...this.state, outputSelector });
     }
 
@@ -27,7 +27,7 @@ export class BaseMatcher extends Matcher {
      * 
      * @param text - The text to compare with the text of the selected element.
      */
-    public toHaveText(text: string): MatcherChainFinisher<this> {
+    public toHaveText(text: string): FluentChainFinisher<this> {
         this.setDescription(`have text '${text}'`);
         this.setMatcher(() => {
             const elementText = this.getElement().nativeElement.textContent?.trim() ?? "";
@@ -43,7 +43,7 @@ export class BaseMatcher extends Matcher {
      * 
      * @param text - The text to compare with the text of the selected element.
      */
-    public toHaveTextCaseInsensitive(text: string): MatcherChainFinisher<this> {
+    public toHaveTextCaseInsensitive(text: string): FluentChainFinisher<this> {
         this.setDescription(`have case insensitive text '${text.toLowerCase()}'`);
         this.setMatcher(() => {
             const elementText = this.getElement().nativeElement.textContent?.trim().toLowerCase() ?? "";
@@ -57,7 +57,7 @@ export class BaseMatcher extends Matcher {
     /**
      * Expect the selected element to be present in the DOM.
      */
-    public toBePresent(): MatcherChainFinisher<this> {
+    public toBePresent(): FluentChainFinisher<this> {
         this.setDescription("be present");
         this.setMatcher(() => {
             const element = this.getElement(false)?.nativeElement;
@@ -71,7 +71,7 @@ export class BaseMatcher extends Matcher {
     /**
      * Expect the selected element to be visible in the DOM.
      */
-    public toBeVisible(): MatcherChainFinisher<this> {
+    public toBeVisible(): FluentChainFinisher<this> {
         this.setDescription("be visible");
         this.setMatcher(() => {
             const element = this.getElement(false)?.nativeElement;

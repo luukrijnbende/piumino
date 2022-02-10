@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import objectInspect from "object-inspect";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, MatcherChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
+import { ComponentFixtureLike, FluentChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
 
 export interface MatcherState {
     selector: Selector;
@@ -17,7 +17,7 @@ export interface MatcherState {
 export abstract class Matcher {
     protected state: MatcherState;
 
-    public get not(): MatcherChain<this> {
+    public get not(): FluentChain<this> {
         this.state.negate = true;
 
         return this;

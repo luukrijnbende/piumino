@@ -7,11 +7,11 @@ export type TestDefinition = [string, () => void];
 export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks MatcherChainFinisher.
 export type GenericFunction = (...args: unknown[]) => unknown;
 export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
-export type MatcherChainStarters = "input" | "output";
-export type MatcherChainStarter<T extends GenericObject> = Omit<T, "build" | "execute">;
-export type MatcherChain<T extends GenericObject> = Omit<T, "build" | "execute" | "not" | MatcherChainStarters>;
-export type MatcherChainWithFinisher<T extends GenericObject> = Omit<T, "not" | MatcherChainStarters>;
-export type MatcherChainFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
+export type FluentChainStarters = "input" | "output";
+export type FluentChainStarter<T extends GenericObject> = Omit<T, "build" | "execute">;
+export type FluentChain<T extends GenericObject> = Omit<T, "build" | "execute" | "not" | FluentChainStarters>;
+export type FluentChainWithFinisher<T extends GenericObject> = Omit<T, "not" | FluentChainStarters>;
+export type FluentChainFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
 
 export interface ComponentFixtureLike {
     componentInstance: GenericObject;
