@@ -86,7 +86,7 @@ describe("InputMatcher", () => {
     describe("toBeBoundTo", () => {
         beforeEach(() => {
             jest.spyOn(NgHelper, "hasProperty").mockReturnValue(true);
-            fixture.componentInstance = { value: 'value' };
+            fixture.componentInstance = { value: "value" };
         });
 
         it("should set the description", () => {
@@ -104,7 +104,7 @@ describe("InputMatcher", () => {
         });
 
         it("should change the bounding property on the component", () => {
-            jest.spyOn(ObjectHelper, 'setProperty');
+            jest.spyOn(ObjectHelper, "setProperty");
 
             const inputMatcher = new InputMatcher(matcherState);
             inputMatcher.toBeBoundTo("value");
@@ -115,7 +115,7 @@ describe("InputMatcher", () => {
         });
 
         it("should change the bounding property on the component with a provided payload", () => {
-            jest.spyOn(ObjectHelper, 'setProperty');
+            jest.spyOn(ObjectHelper, "setProperty");
 
             const inputMatcher = new InputMatcher(matcherState);
             inputMatcher.toBeBoundTo("value");
@@ -199,7 +199,7 @@ describe("InputMatcher", () => {
     describe("toCall", () => {
         beforeEach(() => {
             jest.spyOn(NgHelper, "hasProperty").mockReturnValue(true);
-            fixture.componentInstance = { value: 'value' };
+            fixture.componentInstance = { value: "value" };
         });
 
         it("should set the description", () => {
