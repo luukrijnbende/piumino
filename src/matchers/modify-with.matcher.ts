@@ -1,4 +1,4 @@
-import { MatcherChainFinisher } from "../types";
+import { FluentChainFinisher } from "../types";
 import { Matcher } from "./matcher";
 
 export class ModifyWithMatcher extends Matcher {
@@ -11,7 +11,7 @@ export class ModifyWithMatcher extends Matcher {
      * 
      * @param value - The value to modify the bounded property with.
      */
-    public modifyWith(value: unknown): MatcherChainFinisher<this> {
+    public modifyWith(value: unknown): FluentChainFinisher<this> {
         const toBeBoundToMatcher = this.state.matcher;
 
         this.appendDescription(`modified with '${value}'`);

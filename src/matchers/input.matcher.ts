@@ -1,7 +1,7 @@
 import deepEqual from "fast-deep-equal/es6";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { MatcherChainFinisher, MatcherChainWithFinisher, NOTHING } from "../types";
+import { FluentChainFinisher, FluentChainWithFinisher, NOTHING } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
@@ -24,7 +24,7 @@ export class InputMatcher extends Matcher {
      * 
      * @param value - The value to compare with the input value of the selected element.
      */
-    public toEqual(value: unknown): MatcherChainFinisher<this> {
+    public toEqual(value: unknown): FluentChainFinisher<this> {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             this.checkElementHasProperty(this.state.inputSelector);
@@ -44,9 +44,9 @@ export class InputMatcher extends Matcher {
      * 
      * [input]="property"
      * 
-     * @param property - The property of the fixture's component that should be bounded to the input of the selected element.
+     * @param property - The property of the fixture's component that should be bound to the input of the selected element.
      */
-    public toBeBoundTo(property: string): MatcherChainWithFinisher<ModifyWithMatcher> {
+    public toBeBoundTo(property: string): FluentChainWithFinisher<ModifyWithMatcher> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
         this.setMatcher((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
@@ -78,7 +78,7 @@ export class InputMatcher extends Matcher {
      * 
      * @param func - The function of the fixture's component that should be called by the input of the selected element.
      */
-    public toCall(func: string): MatcherChainWithFinisher<ToCallWithMatcher> {
+    public toCall(func: string): FluentChainWithFinisher<ToCallWithMatcher> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
         this.setMatcher(() => {
             this.checkComponentHasProperty(func);

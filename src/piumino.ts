@@ -1,6 +1,6 @@
 import { ObjectHelper } from "./helpers/object.helper";
 import { BaseMatcher } from "./matchers/base.matcher";
-import { ComponentFixtureLike, GenericFunction, GenericObject, MatcherChainStarter, Selector } from "./types";
+import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector } from "./types";
 
 export class Piumino {
     private fixture: ComponentFixtureLike | null = null;
@@ -19,7 +19,7 @@ export class Piumino {
      * 
      * @param selector - The CSS selector to find the element.
      */
-    public expect(selector: Selector): MatcherChainStarter<BaseMatcher> {
+    public expect(selector: Selector): FluentChainStarter<BaseMatcher> {
         const errorStack = this.getErrorStack();
 
         return new BaseMatcher({ selector, errorStack, getFixture: () => this.getFixture() });

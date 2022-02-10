@@ -1,5 +1,5 @@
 import deepEqual from "fast-deep-equal/es6";
-import { MatcherChainFinisher } from "../types";
+import { FluentChainFinisher } from "../types";
 import { Matcher } from "./matcher";
 
 export class ToCallWithMatcher extends Matcher {
@@ -13,7 +13,7 @@ export class ToCallWithMatcher extends Matcher {
      * 
      * @param values - The values to compare with the values that the function was called with.
      */
-    public with(value: unknown, ...rest: unknown[]): MatcherChainFinisher<this> {
+    public with(value: unknown, ...rest: unknown[]): FluentChainFinisher<this> {
         const values = [value, ...rest];
         const toCallMatcher = this.state.matcher;
 
