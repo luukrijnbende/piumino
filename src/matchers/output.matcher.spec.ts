@@ -44,45 +44,26 @@ describe("OutputMatcher", () => {
             expect(matcherState.matcher).toBeDefined();
         });
 
-        it("should change the bounding property on the component", () => {
-            jest.spyOn(ObjectHelper, 'setProperty');
+        it("should dispatch an event to change the bounding property on the component", () => {
+            const nativeElement = { dispatchEvent: jest.fn() };
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
             matcherState.matcher?.();
 
-            expect(ObjectHelper.setProperty).toHaveBeenCalledWith(fixture.componentInstance, "value", "binding");
-            expect(fixture.componentInstance.value).toBe("binding");
+            expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("output"));
         });
 
-        it("should change the bounding property on the component with a provided payload", () => {
-            jest.spyOn(ObjectHelper, 'setProperty');
+        it("should dispatch an event to change the bounding property on the component with a provided payload", () => {
+            const nativeElement = { dispatchEvent: jest.fn() };
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.("provided");
+            matcherState.matcher?.(new Event("provided"));
 
-            expect(ObjectHelper.setProperty).toHaveBeenCalledWith(fixture.componentInstance, "value", "provided");
-            expect(fixture.componentInstance.value).toBe("provided");
-        });
-
-        it("should call detectChanges on the fixture", () => {
-            const outputMatcher = new OutputMatcher(matcherState);
-            outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.();
-
-            expect(fixture.detectChanges).toHaveBeenCalled();
-        });
-
-        it("should get the value of the property from the element", () => {
-            jest.spyOn(NgHelper, "getProperty");
-
-            const element = fixture.debugElement.query(undefined as any);
-            const outputMatcher = new OutputMatcher(matcherState);
-            outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.();
-
-            expect(NgHelper.getProperty).toHaveBeenCalledWith(element, "input");
+            expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("provided"));
         });
 
         it("should get the value of the property from the component", () => {
@@ -103,13 +84,12 @@ describe("OutputMatcher", () => {
             ${[{ value: 1 }]}       | ${[{ value: 1 }]}       | ${true}
             ${[{ value: 1 }]}       | ${[{ value: 2 }]}       | ${false}
         `("should return $expected for '$values' and '$received'", ({ values, received, expected }) => {
-            jest.spyOn(NgHelper, "getProperty").mockReturnValue(received);
-            jest.spyOn(ObjectHelper, "getProperty").mockReturnValue(values);
+            jest.spyOn(ObjectHelper, "getProperty").mockReturnValue(received);
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
 
-            expect(matcherState.matcher?.()).toEqual([expected, received, values]);
+            expect(matcherState.matcher?.(values)).toEqual([expected, received, values]);
         });
 
         it("should throw if the component doesn't have the bounding property", () => {   
@@ -128,115 +108,147 @@ describe("OutputMatcher", () => {
         });
     });
 
-    // describe("toCall", () => {
-    //     beforeEach(() => {
-    //         jest.spyOn(NgHelper, "hasProperty").mockReturnValue(true);
-    //         fixture.componentInstance = { value: 'value' };
-    //     });
+    describe("toCall", () => {
+        beforeEach(() => {
+            jest.spyOn(NgHelper, "hasProperty").mockReturnValue(true);
+            fixture.componentInstance = { value: 'value' };
+        });
 
-    //     it("should set the description", () => {
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
+        it("should set the description", () => {
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
 
-    //         expect(matcherState.description).toBe("'selector' input 'input' should call 'value'");
-    //     });
+            expect(matcherState.description).toBe("'selector' output 'output' should call 'value'");
+        });
 
-    //     it("should set the matcher", () => {
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
+        it("should set the matcher", () => {
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
 
-    //         expect(matcherState.matcher).toBeDefined();
-    //     });
+            expect(matcherState.matcher).toBeDefined();
+        });
 
-    //     it("should replace the function on the component with a dummy one", () => {
-    //         jest.spyOn(ObjectHelper, "replaceFunction");
+        it("should replace the function on the component with a dummy one", () => {
+            jest.spyOn(ObjectHelper, "replaceFunction");
 
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
-    //         matcherState.matcher?.();
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.();
 
-    //         expect(ObjectHelper.replaceFunction).toHaveBeenCalledWith(fixture.componentInstance, "value", expect.any(Function));
-    //     });
+            expect(ObjectHelper.replaceFunction).toHaveBeenCalledWith(fixture.componentInstance, "value", expect.any(Function));
+        });
 
-    //     it("should call detectChanges on the fixture", () => {
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
-    //         matcherState.matcher?.();
+        it("should dispatch an event to call the function on the component", () => {
+            const nativeElement = { dispatchEvent: jest.fn() };
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
+            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(undefined);
 
-    //         expect(fixture.detectChanges).toHaveBeenCalled();
-    //     });
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.();
 
-    //     it("should restore the original function on the component", () => {
-    //         jest.spyOn(ObjectHelper, "restoreFunction");
+            expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("output"));
+        });
 
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
-    //         matcherState.matcher?.();
+        it("should dispatch an event to call the function on the component with a provided payload", () => {
+            const nativeElement = { dispatchEvent: jest.fn() };
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
+            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(undefined);
 
-    //         expect(ObjectHelper.restoreFunction).toHaveBeenCalledWith(fixture.componentInstance, "value");
-    //     });
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.(new Event("provided"));
 
-    //     it("should get the value of the property from the element", () => {
-    //         jest.spyOn(NgHelper, "getProperty");
+            expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("provided"));
+        });
 
-    //         const element = fixture.debugElement.query(undefined as any);
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
-    //         matcherState.matcher?.();
+        it.each`
+            keyEvent
+            ${"keydown"}
+            ${"keyup"}
+        `("should dispatch a $keyEvent event to call the function on the component", ({ keyEvent }) => {
+            const localMatcherState = { ...matcherState, outputSelector: `${keyEvent}.enter` };
+            const nativeElement = { dispatchEvent: jest.fn() };
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
 
-    //         expect(NgHelper.getProperty).toHaveBeenCalledWith(element, "input");
-    //     });
+            const outputMatcher = new OutputMatcher(localMatcherState);
+            outputMatcher.toCall("value");
+            localMatcherState.matcher?.();
 
-    //     it.each`
-    //         callValues    | binding      | expected | expectedCallValues
-    //         ${[]}         | ${"binding"} | ${true}  | ${NOTHING}
-    //         ${[]}         | ${"failed"}  | ${false} | ${NOTHING}
-    //         ${["value1"]} | ${"binding"} | ${true}  | ${["value1"]}
-    //         ${["value1"]} | ${"failed"}  | ${false} | ${["value1"]}
-    //     `("should return $expected if the replaced function has been called with $callValues and input is $binding", ({ callValues, binding, expected, expectedCallValues }) => {
-    //         let replacedFunction: (...args: unknown[]) => void;
+            expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new KeyboardEvent(keyEvent, { key: "enter" }));
+        });
 
-    //         jest.spyOn(ObjectHelper, "replaceFunction").mockImplementation((c,f,func) => replacedFunction = func);
-    //         jest.spyOn(NgHelper, "getProperty").mockReturnValue(binding);
-    //         (fixture.detectChanges as jest.Mock).mockImplementation(() => replacedFunction?.(...callValues));
+        it("should emit an output event to call the function on the component", () =>  {
+            const output = { emit: jest.fn() };
+            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(output);
 
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.();
+
+            expect(output.emit).toHaveBeenCalled();
+        });
+
+        it("should emit an output event to call the function on the component with a provided payload", () =>  {
+            const output = { emit: jest.fn() };
+            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(output);
+
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.("payload");
+
+            expect(output.emit).toHaveBeenCalledWith("payload");
+        });
+
+        it("should restore the original function on the component", () => {
+            jest.spyOn(ObjectHelper, "restoreFunction");
+
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
+            matcherState.matcher?.();
+
+            expect(ObjectHelper.restoreFunction).toHaveBeenCalledWith(fixture.componentInstance, "value");
+        });
+
+        it.each`
+            callValues    | binding      | expected | expectedCallValues
+            ${[]}         | ${"binding"} | ${true}  | ${NOTHING}
+            ${["value"]}  | ${"binding"} | ${true}  | ${["value"]}
+        `("should return $expected if the replaced function has been called with $callValues", ({ callValues, binding, expected, expectedCallValues }) => {
+            const nativeElement = { dispatchEvent: jest.fn(() => replacedFunction(...callValues)) };
+            let replacedFunction: (...args: unknown[]) => void;
+
+            (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
+            jest.spyOn(ObjectHelper, "replaceFunction").mockImplementation((c,f,func) => replacedFunction = func);
+
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
             
-    //         expect(matcherState.matcher?.()).toEqual([expected, expectedCallValues, NOTHING]);
-    //     });
+            expect(matcherState.matcher?.()).toEqual([expected, expectedCallValues, NOTHING]);
+        });
 
-    //     it("should return false if the replaced function has not been", () => {
-    //         jest.spyOn(NgHelper, "getProperty").mockReturnValue("binding");
+        it("should return false if the replaced function has not been called", () => {
+            jest.spyOn(ObjectHelper, "replaceFunction").mockImplementation(() => {});
 
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toCall("value");
             
-    //         expect(matcherState.matcher?.()).toEqual([false, undefined, NOTHING]);
-    //     });
+            expect(matcherState.matcher?.()).toEqual([false, undefined, NOTHING]);
+        });
 
-    //     it("should throw if the component doesn't have the bounding property", () => {           
-    //         fixture.componentInstance = {};
+        it("should throw if the component doesn't have the function", () => {           
+            fixture.componentInstance = {};
             
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toBeBoundTo("value");
+            const outputMatcher = new OutputMatcher(matcherState);
+            outputMatcher.toBeBoundTo("value");
 
-    //         expect(() => matcherState.matcher!()).toThrow();
-    //     });
+            expect(() => matcherState.matcher!()).toThrow();
+        });
 
-    //     it("should throw if the element doesn't have the input property", () => {
-    //         jest.spyOn(NgHelper, "hasProperty").mockReturnValue(false);
-            
-    //         const outputMatcher = new OutputMatcher(matcherState);
-    //         outputMatcher.toCall("value");
-
-    //         expect(() => matcherState.matcher!()).toThrow();
-    //     });
-
-    //     it("should return an instance of ToCallWithMatcher", () => {
-    //         const outputMatcher = new OutputMatcher(matcherState);
+        it("should return an instance of ToCallWithMatcher", () => {
+            const outputMatcher = new OutputMatcher(matcherState);
     
-    //         expect(outputMatcher.toCall("value")).toBeInstanceOf(ToCallWithMatcher);
-    //     });
-    // });
+            expect(outputMatcher.toCall("value")).toBeInstanceOf(ToCallWithMatcher);
+        });
+    });
 });
