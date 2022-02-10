@@ -50,7 +50,7 @@ describe("Objecthelper", () => {
             expect(ObjectHelper.getProperty(obj, path)).toBe(value);
         });
 
-        it('does nothing if the path is empty', () => {
+        it("does nothing if the path is empty", () => {
             const obj = {
                 object: { value: "" }
             }

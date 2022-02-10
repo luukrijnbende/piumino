@@ -52,7 +52,7 @@ export class ObjectHelper {
     }
 
     public static isObject(obj: unknown): boolean {
-        return typeof obj === 'function' || typeof obj === 'object' && !!obj;
+        return typeof obj === "function" || typeof obj === "object" && !!obj;
     }
 
     private static pathToKeys(path: string | string[]): string[] {

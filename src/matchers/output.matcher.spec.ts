@@ -27,7 +27,7 @@ describe("OutputMatcher", () => {
     describe("toBeBoundTo", () => {
         beforeEach(() => {
             jest.spyOn(NgHelper, "getProperty").mockReturnValue(true);
-            fixture.componentInstance = { value: 'value' };
+            fixture.componentInstance = { value: "value" };
         });
 
         it("should set the description", () => {
@@ -111,7 +111,7 @@ describe("OutputMatcher", () => {
     describe("toCall", () => {
         beforeEach(() => {
             jest.spyOn(NgHelper, "hasProperty").mockReturnValue(true);
-            fixture.componentInstance = { value: 'value' };
+            fixture.componentInstance = { value: "value" };
         });
 
         it("should set the description", () => {
@@ -141,7 +141,7 @@ describe("OutputMatcher", () => {
         it("should dispatch an event to call the function on the component", () => {
             const nativeElement = { dispatchEvent: jest.fn() };
             (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
-            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(undefined);
+            jest.spyOn(NgHelper, "getProperty").mockReturnValueOnce(undefined);
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
@@ -153,7 +153,7 @@ describe("OutputMatcher", () => {
         it("should dispatch an event to call the function on the component with a provided payload", () => {
             const nativeElement = { dispatchEvent: jest.fn() };
             (fixture.debugElement.query as jest.Mock).mockReturnValue({ nativeElement });
-            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(undefined);
+            jest.spyOn(NgHelper, "getProperty").mockReturnValueOnce(undefined);
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
@@ -180,7 +180,7 @@ describe("OutputMatcher", () => {
 
         it("should emit an output event to call the function on the component", () =>  {
             const output = { emit: jest.fn() };
-            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(output);
+            jest.spyOn(NgHelper, "getProperty").mockReturnValueOnce(output);
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
@@ -191,7 +191,7 @@ describe("OutputMatcher", () => {
 
         it("should emit an output event to call the function on the component with a provided payload", () =>  {
             const output = { emit: jest.fn() };
-            jest.spyOn(NgHelper, 'getProperty').mockReturnValueOnce(output);
+            jest.spyOn(NgHelper, "getProperty").mockReturnValueOnce(output);
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
