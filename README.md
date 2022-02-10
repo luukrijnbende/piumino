@@ -198,7 +198,19 @@ The last of the provided values is dispatched as $event.
 piumino.expect("selector").output("output").toCall("func").with("value")
 ```
 
-## TODO
-- Add .toCallThrough() to input/output matcher
-- Make .toBeBoundTo() in input matcher work with getters
-- Make .toBeBoundTo() in output matcher work with setters without a getter
+## Utility functions
+### .replaceFunction()
+Replace a function implementation on the provided object with the provided implementation.
+
+```typescript
+piumino.replaceFunction("object", "function", "implementation");
+```
+
+
+### .restoreFunction()
+Restore a function implementation on the provided object with the original implementation.\
+NOTE: Does nothing if the function was never replaced.
+
+```typescript
+piumino.restoreFunction("object", "function");
+```
