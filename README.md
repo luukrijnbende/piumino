@@ -1,84 +1,216 @@
 # Piumino
 Piumino, meaning duvet in Italian, is like a duvet over the bed called Angular TestBed. It provides test helpers to test trivial things like inputs and outputs with a single line.
 
-## Requirements
-- Tests that use Angular TestBed
-- Jest
 
-## Usage
+## Requirements
+- Tests that use Angular TestBed (either directly or under the hood, so long as a fixture is available)
+- Jest or Jasmine (other frameworks will likely work as well but are untested)
+
+
+## Installation
 ```bash
 npm i -D piumino
 ```
 
-```javascript
+
+## Usage
+Import Piumino into the test file and construct it.
+
+```typescript
 import { Piumino } from "piumino";
 
 const piumino = new Piumino();
-piumino.init(fixture, component);
 ```
 
-## Test helpers
-The test helpers work by spreading the result of the helper into the `it` or `test` provided by Jest. They provide the test case text and the implementation that tests the case as defined by the helper.
+Then init it with the fixture from TestBed.
 
-### testInputStatic
-```javascript
-it(...piumino.testInputStatic(selector, input, value));
-```
-- `selector` \
-  A CSS selector or a type (e.g. Component, Directive) to select the element to test the input of.
-- `input` \
-  A string defining the input on the element to test.
-- `value` \
-  The value to compare the input with.
-
-### testInput
-```javascript
-it(...piumino.testInput(selector, input, source, modifyValue));
-```
-- `selector` \
-  A CSS selector or a type (e.g. Component, Directive) to select the element to test the input of.
-- `input` \
-  A string defining the input on the element to test.
-- `source` \
-  A string defining the variable on the parent component that the input is wired to (if the source is a function, it will be executed to get the value). 
-- `modifyValue` \
-  A value to modify the source with to test if the input changes.
-
-### testOuput
-```javascript
-it(...piumino.testOutput(selector, output, destination, ...modifyValue));
-```
-- `selector` \
-  A CSS selector or a type (e.g. Component, Directive) to select the element to test the output of.
-- `output` \
-  A string defining the output on the element to test.
-- `destination` \
-  A string defining the function on the parent component that the output is wired to.
-- `modifyValue` \
-  Optional values to test the output with (it will emit the last value).
-
-### testText
-```javascript
-it(...piumino.testText(selector, value));
-```
-- `selector` \
-  A CSS selector or a type (e.g. Component, Directive) to select the element to test the text of.
-- `value` \
-  The value to compare the text with.
-
-## Other helpers
-### before
-Execute some code before executing a test helper.
-```javascript
-it(...piumino.before(piumino.anyTestHelper(), () => {
-    // Before code
-}));
+```typescript
+piumino.init(fixture);
 ```
 
-### after
-Execute some code after executing a test helper.
-```javascript
-it(...piumino.after(piumino.anyTestHelper(), () => {
-    // After code
-}));
+Tests can then be executed in two ways.\
+Selector is a CSS selector for the element to expect something on or the HTMLElement itself.
+
+As a one-liner.
+```typescript
+it(...piumino.expect("selector").xxx.build());
+```
+
+In an existing test.
+```typescript
+it("Existing test", () => {
+    piumino.expect("selector").xxx.execute();
+});
+```
+
+## API
+### .not
+Invert the result of the matchers.
+### .toHaveText()
+Expect the selected element to have the provided text.
+
+```typescript
+piumino.expect("selector").toHaveText("text")
+```
+
+### .toHaveTextCaseInsensitive()
+Expect the selected element to have the provided text, ignoring case.
+
+```typescript
+piumino.expect("selector").toHaveTextCaseInsensitive("text")
+```
+
+### .toBePresent()
+Expect the selected element to be present in the DOM.
+
+```typescript
+piumino.expect("selector").toBePresent()
+```
+
+### .toBeVisible()
+Expect the selected element to be visible in the DOM.
+
+```typescript
+piumino.expect("selector").toBeVisible()
+```
+
+### .input()
+Select an input of the selected element to expect something on.
+
+```typescript
+piumino.expect("selector").input("input")
+```
+
+#### .not
+Invert the result of the matchers.
+
+#### .toEqual()
+Expect the input of the selected element to equal the provided value.
+
+```html
+<element input="value"/>
+```
+
+```typescript
+piumino.expect("selector").input("input").toEqual("value")
+```
+
+#### .toBeBoundTo()
+Expect the input of the selected element to be bound to the provided property of the fixture's component.\
+NOTE: Does not work for getters.
+
+```html
+<element [input]="property"/>
+```
+
+```typescript
+piumino.expect("selector").input("input").toBeBoundTo("property")
+```
+
+##### .modifyWith()
+Expect the bounded property to be modified with the provided value.
+
+```html
+<element [input]="property"/>
+```
+
+```typescript
+piumino.expect("selector").input("input").toBeBoundTo("property").modifyWith("value")
+```
+
+#### .toCall()
+Expect the input of the selected element to call the provided function of the fixture's component. Also checks if the return value of the function is assigned to the input.
+
+```html
+<element [input]="func()"/>
+```
+
+```typescript
+piumino.expect("selector").input("input").toCall("func")
+```
+
+##### .with()
+Expect the called function to be called with the provided values.
+
+```html
+<element [input]="func(value)"/>
+```
+
+```typescript
+piumino.expect("selector").input("input").toCall("func").with("value")
+```
+
+### .output()
+Select an output of the selected element to expect something on.
+
+```typescript
+piumino.expect("selector").output("output")
+```
+
+### .not
+Invert the result of the matchers.
+
+#### .toBeBoundTo()
+Expect the output of the selected element to be bound to the provided property of the fixture's component.\
+NOTE: Does not work for setters if there is no getter.
+
+```html
+<element (output)="property = $event"/>
+```
+
+```typescript
+piumino.expect("selector").output("output").toBeBoundTo("property")
+```
+
+##### .modifyWith()
+Expect the bounded property to be modified with the provided value.
+
+```html
+<element (output)="property = $event"/>
+<element (output)="property = value"/>
+```
+
+```typescript
+piumino.expect("selector").output("output").toBeBoundTo("property").modifyWith("value")
+```
+
+#### .toCall()
+Expect the output of the selected element to call the provided function of the fixture's component.
+
+```html
+<element (output)="func()"/>
+```
+
+```typescript
+piumino.expect("selector").output("output").toCall("func")
+```
+
+##### .with()
+Expect the called function to be called with the provided values.
+The last of the provided values is dispatched as $event.
+
+```html
+<element (output)="func($event)"/>
+<element (output)="func(value, $event)"/>
+```
+
+```typescript
+piumino.expect("selector").output("output").toCall("func").with("value")
+```
+
+## Utility functions
+### .replaceFunction()
+Replace a function implementation on the provided object with the provided implementation.
+
+```typescript
+piumino.replaceFunction("object", "function", "implementation");
+```
+
+
+### .restoreFunction()
+Restore a function implementation on the provided object with the original implementation.\
+NOTE: Does nothing if the function was never replaced.
+
+```typescript
+piumino.restoreFunction("object", "function");
 ```
