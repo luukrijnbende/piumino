@@ -1,6 +1,7 @@
 import { ObjectHelper } from "./helpers/object.helper";
 import { BaseMatcher } from "./matchers/base.matcher";
-import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector } from "./types";
+import { MatcherState } from "./matchers/matcher";
+import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector, SelectionStrategy } from "./types";
 
 export class Piumino {
     private fixture: ComponentFixtureLike | null = null;
@@ -15,14 +16,29 @@ export class Piumino {
     }
 
     /**
-     * Select an element that is a child of the fixture's component to expect something on.
+     * Select the first element that is a child of the fixture's component to expect something on.
      * 
      * @param selector - The CSS selector to find the element.
      */
     public expect(selector: Selector): FluentChainStarter<BaseMatcher> {
-        const errorStack = this.getErrorStack();
+        return new BaseMatcher({
+            ...this.createCommonMatcherState(),
+            selector,
+            selectionStrategy: SelectionStrategy.First
+        });
+    }
 
-        return new BaseMatcher({ selector, errorStack, getFixture: () => this.getFixture() });
+    /**
+     * Select all elements that are a child of the fixture's component to expect something on.
+     * 
+     * @param selector - The CSS selector to find the elements.
+     */
+    public expectAll(selector: Selector): FluentChainStarter<BaseMatcher> {
+        return new BaseMatcher({
+            ...this.createCommonMatcherState(),
+            selector,
+            selectionStrategy: SelectionStrategy.All
+        });
     }
 
     /**
@@ -53,5 +69,12 @@ export class Piumino {
 
     private getErrorStack(): string | undefined {
         return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
+    }
+
+    private createCommonMatcherState(): Pick<MatcherState, "errorStack" | "getFixture"> {
+        return {
+            errorStack: this.getErrorStack(),
+            getFixture: () => this.getFixture()
+        };
     }
 }

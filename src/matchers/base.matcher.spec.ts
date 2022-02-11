@@ -1,4 +1,4 @@
-import { ComponentFixtureLike } from "../types";
+import { ComponentFixtureLike, SelectionStrategy } from "../types";
 import { BaseMatcher } from "./base.matcher";
 import { InputMatcher } from "./input.matcher";
 import { MatcherState } from "./matcher";
@@ -18,6 +18,7 @@ describe("BaseMatcher", () => {
         };
         matcherState = {
             selector: "selector",
+            selectionStrategy: SelectionStrategy.First,
             getFixture: jest.fn(() => fixture)
         };
     });

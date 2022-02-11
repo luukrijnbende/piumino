@@ -13,6 +13,12 @@ export type FluentChain<T extends GenericObject> = Omit<T, "build" | "execute" |
 export type FluentChainWithFinisher<T extends GenericObject> = Omit<T, "not" | FluentChainStarters>;
 export type FluentChainFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
 
+export enum SelectionStrategy {
+    First = "first",
+    Last = "last",
+    All = "all"
+}
+
 export interface ComponentFixtureLike {
     componentInstance: GenericObject;
     debugElement: DebugElement;

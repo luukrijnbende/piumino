@@ -5,7 +5,7 @@ import { ObjectHelper } from "./object.helper";
 export class NgHelper {
     private static reflectionCapabilities = new ɵReflectionCapabilities();
 
-    public static getProperty(element: DebugElement, property: string): any {
+    public static getProperty(element: DebugElement, property: string): unknown {
         if (element.nativeElement.hasAttribute(property)) {
             return element.nativeElement.getAttribute(property);
         }

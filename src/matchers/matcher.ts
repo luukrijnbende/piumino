@@ -2,10 +2,11 @@ import { DebugElement } from "@angular/core";
 import objectInspect from "object-inspect";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, FluentChain, MatcherFunction, NOTHING, PiuminoError, Selector, TestDefinition } from "../types";
+import { ComponentFixtureLike, FluentChain, GenericObject, MatcherFunction, NOTHING, PiuminoError, SelectionStrategy, Selector, TestDefinition } from "../types";
 
 export interface MatcherState {
     selector: Selector;
+    selectionStrategy: SelectionStrategy;
     negate?: boolean;
     description?: string;
     errorDescription?: string;
@@ -74,7 +75,7 @@ export abstract class Matcher {
         return fixture;
     }
 
-    protected getComponent(): any {
+    protected getComponent(): GenericObject {
         const fixture = this.getFixture();
 
         // Support for ngMocks.
