@@ -29,7 +29,7 @@ piumino.init(fixture);
 ```
 
 Tests can then be executed in two ways.\
-Selector is a CSS selector for the element to expect something on or the HTMLElement itself.
+Selector is a CSS selector for the element to expect something on.
 
 As a one-liner.
 ```typescript
