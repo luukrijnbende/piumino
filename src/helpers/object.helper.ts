@@ -51,7 +51,7 @@ export class ObjectHelper {
         }
     }
 
-    public static isObject(obj: unknown): boolean {
+    public static isObject(obj: unknown): obj is GenericObject {
         return typeof obj === "function" || typeof obj === "object" && !!obj;
     }
 

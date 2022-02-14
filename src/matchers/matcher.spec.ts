@@ -1,4 +1,4 @@
-import { ComponentFixtureLike } from "../types";
+import { ComponentFixtureLike, SelectionStrategy } from "../types";
 import { Matcher, MatcherState } from "./matcher";
 
 class DummyMatcher extends Matcher { }
@@ -18,6 +18,7 @@ describe("Matcher", () => {
         };
         matcherState = {
             selector: "selector",
+            selectionStrategy: SelectionStrategy.First,
             getFixture: jest.fn(() => fixture)
         };
         dummyMatcher = new DummyMatcher(matcherState);

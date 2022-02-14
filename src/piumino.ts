@@ -1,7 +1,7 @@
 import { ObjectHelper } from "./helpers/object.helper";
 import { BaseMatcher } from "./matchers/base.matcher";
 import { MatcherState } from "./matchers/matcher";
-import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector, SelectionStrategy } from "./types";
+import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector, SelectionStrategy, HandlerExecutionStrategy } from "./types";
 
 export class Piumino {
     private fixture: ComponentFixtureLike | null = null;
@@ -71,10 +71,11 @@ export class Piumino {
         return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
     }
 
-    private createCommonMatcherState(): Pick<MatcherState, "errorStack" | "getFixture"> {
+    private createCommonMatcherState(): Pick<MatcherState, "errorStack" | "getFixture" | "handlerExecutionStrategy"> {
         return {
             errorStack: this.getErrorStack(),
-            getFixture: () => this.getFixture()
+            getFixture: () => this.getFixture(),
+            handlerExecutionStrategy: HandlerExecutionStrategy.Loop
         };
     }
 }

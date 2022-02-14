@@ -17,6 +17,14 @@ describe("Piumino", () => {
         });
     });
 
+    describe("expectAll", () => {
+        it("should return an instance of BaseMatcher", () => {
+            const matcher = piumino.expectAll("selector");
+
+            expect(matcher).toBeInstanceOf(BaseMatcher);
+        });
+    });
+
     describe("replaceFunction", () => {
         it("should call replaceFunction on the ObjectHelper", () => {
             const obj = { someFunction: jest.fn() };

@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import objectInspect from "object-inspect";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, FluentChain, GenericObject, MatcherFunction, NOTHING, PiuminoError, SelectionStrategy, Selector, TestDefinition } from "../types";
+import { ComponentFixtureLike, FluentChain, GenericObject, HandlerExecutionStrategy, MatcherHandler, NOTHING, PiuminoError, SelectionStrategy, Selector, TestDefinition } from "../types";
 
 export interface MatcherState {
     selector: Selector;
@@ -12,7 +12,8 @@ export interface MatcherState {
     errorDescription?: string;
     errorStack?: string;
     getFixture: () => ComponentFixtureLike | null;
-    matcher?: MatcherFunction;
+    handler?: MatcherHandler;
+    handlerExecutionStrategy?: HandlerExecutionStrategy;
 }
 
 export abstract class Matcher {
@@ -36,11 +37,18 @@ export abstract class Matcher {
     }
 
     public execute(): void {
-        if (!this.state.matcher) {
+        if (!this.state.handler) {
             return this.throwError("Please choose a matcher first");
         }
 
-        const result = this.state.matcher();
+        // Loop the handler
+        // Make sure the right element is returned
+        //  - Include in handler context?
+        //  - Keep a counter and adjust the return value?
+        //  - Make a separate class to handle element selection? -> preference
+
+
+        const result = this.state.handler();
         const [matcherResult, matcherReceived, matcherExpected] = Array.isArray(result) ? result : [result, NOTHING, NOTHING];
 
         if ((!this.state.negate && !matcherResult) || (this.state.negate && matcherResult)) {
@@ -61,8 +69,12 @@ export abstract class Matcher {
         this.state.errorDescription += ` ${description}`;
     }
 
-    protected setMatcher(matcher: MatcherFunction): void {
-        this.state.matcher = matcher;
+    protected setHandler(handler: MatcherHandler): void {
+        this.state.handler = handler;
+    }
+
+    protected setHandlerExecutionStrategy(strategy: HandlerExecutionStrategy): void {
+        this.state.handlerExecutionStrategy = strategy;
     }
 
     protected getFixture(): ComponentFixtureLike {
@@ -101,6 +113,7 @@ export abstract class Matcher {
         fixture.detectChanges();
 
         // TODO: support selector as DebugElement and/or HTMLElement.
+        // queryAll, then filter
         const element = fixture.debugElement.query(el =>
             el.nativeElement?.matches?.(this.state.selector))
 

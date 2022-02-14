@@ -4,9 +4,9 @@ export const NOTHING = Symbol("NOTHING");
 
 export type Selector = string;
 export type TestDefinition = [string, () => void];
-export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks MatcherChainFinisher.
+export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks FluentChainFinisher.
 export type GenericFunction = (...args: unknown[]) => unknown;
-export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
+export type MatcherHandler = (payload?: unknown) => [boolean, unknown?, unknown?];
 export type FluentChainStarters = "input" | "output";
 export type FluentChainStarter<T extends GenericObject> = Omit<T, "build" | "execute">;
 export type FluentChain<T extends GenericObject> = Omit<T, "build" | "execute" | "not" | FluentChainStarters>;
@@ -17,6 +17,11 @@ export enum SelectionStrategy {
     First = "first",
     Last = "last",
     All = "all"
+}
+
+export enum HandlerExecutionStrategy {
+    Once = "once",
+    Loop = "loop"
 }
 
 export interface ComponentFixtureLike {
