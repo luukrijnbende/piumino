@@ -29,7 +29,7 @@ export class BaseMatcher extends Matcher {
      */
     public toHaveText(text: string): FluentChainFinisher<this> {
         this.setDescription(`have text '${text}'`);
-        this.setMatcher(() => {
+        this.setHandler(() => {
             const elementText = this.getElement().nativeElement.textContent?.trim() ?? "";
 
             return [elementText === text, elementText, text];
@@ -45,7 +45,7 @@ export class BaseMatcher extends Matcher {
      */
     public toHaveTextCaseInsensitive(text: string): FluentChainFinisher<this> {
         this.setDescription(`have case insensitive text '${text.toLowerCase()}'`);
-        this.setMatcher(() => {
+        this.setHandler(() => {
             const elementText = this.getElement().nativeElement.textContent?.trim().toLowerCase() ?? "";
 
             return [elementText === text.toLowerCase(), elementText, text.toLowerCase()];
@@ -59,7 +59,7 @@ export class BaseMatcher extends Matcher {
      */
     public toBePresent(): FluentChainFinisher<this> {
         this.setDescription("be present");
-        this.setMatcher(() => {
+        this.setHandler(() => {
             const element = this.getElement(false)?.nativeElement;
 
             return [!!element && element.ownerDocument === element.getRootNode({ composed: true })];
@@ -73,7 +73,7 @@ export class BaseMatcher extends Matcher {
      */
     public toBeVisible(): FluentChainFinisher<this> {
         this.setDescription("be visible");
-        this.setMatcher(() => {
+        this.setHandler(() => {
             const element = this.getElement(false)?.nativeElement;
 
             if (!element) {

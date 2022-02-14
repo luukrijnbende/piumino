@@ -28,7 +28,7 @@ export class OutputMatcher extends Matcher {
      */
     public toBeBoundTo(property: string): FluentChainWithFinisher<ModifyWithMatcher> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
-        this.setMatcher((payload: unknown = "binding") => {
+        this.setHandler((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
             
             this.dispatchEvent(payload);
@@ -53,7 +53,7 @@ export class OutputMatcher extends Matcher {
      */
     public toCall(func: string): FluentChainWithFinisher<ToCallWithMatcher> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
-        this.setMatcher((payload: unknown = NOTHING) => {
+        this.setHandler((payload: unknown = NOTHING) => {
             this.checkComponentHasProperty(func);
 
             const component = this.getComponent();
@@ -84,7 +84,7 @@ export class OutputMatcher extends Matcher {
         const element = this.getElement();
         const output = NgHelper.getProperty(element, this.state.outputSelector);
 
-        if (output?.emit) {
+        if (ObjectHelper.isObject(output) && output?.emit) {
             if (payload === NOTHING) {
                 output.emit();
             } else {

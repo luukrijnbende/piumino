@@ -12,10 +12,10 @@ export class ModifyWithMatcher extends Matcher {
      * @param value - The value to modify the bounded property with.
      */
     public modifyWith(value: unknown): FluentChainFinisher<this> {
-        const toBeBoundToMatcher = this.state.matcher;
+        const toBeBoundToHandler = this.state.handler;
 
         this.appendDescription(`modified with '${value}'`);
-        this.setMatcher(() => toBeBoundToMatcher!(value));
+        this.setHandler(() => toBeBoundToHandler!(value));
 
         return this;
     }

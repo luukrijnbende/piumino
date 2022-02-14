@@ -1,6 +1,6 @@
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, NOTHING } from "../types";
+import { ComponentFixtureLike, NOTHING, SelectionStrategy } from "../types";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { OutputMatcher, OutputMatcherState } from "./output.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
@@ -19,6 +19,7 @@ describe("OutputMatcher", () => {
         };
         matcherState = {
             selector: "selector",
+            selectionStrategy: SelectionStrategy.First,
             outputSelector: "output",
             getFixture: jest.fn(() => fixture)
         };
@@ -37,11 +38,11 @@ describe("OutputMatcher", () => {
             expect(matcherState.description).toBe("'selector' output 'output' should be bound to 'value'");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it("should dispatch an event to change the bounding property on the component", () => {
@@ -50,7 +51,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("output"));
         });
@@ -61,7 +62,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.(new Event("provided"));
+            matcherState.handler?.(new Event("provided"));
 
             expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("provided"));
         });
@@ -71,7 +72,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(ObjectHelper.getProperty).toHaveBeenCalledWith(fixture.componentInstance, "value");
         });
@@ -89,7 +90,7 @@ describe("OutputMatcher", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
 
-            expect(matcherState.matcher?.(values)).toEqual([expected, received, values]);
+            expect(matcherState.handler?.(values)).toEqual([expected, received, values]);
         });
 
         it("should throw if the component doesn't have the bounding property", () => {   
@@ -98,7 +99,7 @@ describe("OutputMatcher", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
 
-            expect(() => matcherState.matcher!()).toThrow();
+            expect(() => matcherState.handler!()).toThrow();
         });
 
         it("should return an instance of ModifyWithMatcher", () => {
@@ -121,11 +122,11 @@ describe("OutputMatcher", () => {
             expect(matcherState.description).toBe("'selector' output 'output' should call 'value'");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it("should replace the function on the component with a dummy one", () => {
@@ -133,7 +134,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(ObjectHelper.replaceFunction).toHaveBeenCalledWith(fixture.componentInstance, "value", expect.any(Function));
         });
@@ -145,7 +146,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("output"));
         });
@@ -157,7 +158,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.(new Event("provided"));
+            matcherState.handler?.(new Event("provided"));
 
             expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event("provided"));
         });
@@ -173,7 +174,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(localMatcherState);
             outputMatcher.toCall("value");
-            localMatcherState.matcher?.();
+            localMatcherState.handler?.();
 
             expect(nativeElement.dispatchEvent).toHaveBeenCalledWith(new KeyboardEvent(keyEvent, { key: "enter" }));
         });
@@ -184,7 +185,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(output.emit).toHaveBeenCalled();
         });
@@ -195,7 +196,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.("payload");
+            matcherState.handler?.("payload");
 
             expect(output.emit).toHaveBeenCalledWith("payload");
         });
@@ -205,7 +206,7 @@ describe("OutputMatcher", () => {
 
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
-            matcherState.matcher?.();
+            matcherState.handler?.();
 
             expect(ObjectHelper.restoreFunction).toHaveBeenCalledWith(fixture.componentInstance, "value");
         });
@@ -224,7 +225,7 @@ describe("OutputMatcher", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
             
-            expect(matcherState.matcher?.()).toEqual([expected, expectedCallValues, NOTHING]);
+            expect(matcherState.handler?.()).toEqual([expected, expectedCallValues, NOTHING]);
         });
 
         it("should return false if the replaced function has not been called", () => {
@@ -233,7 +234,7 @@ describe("OutputMatcher", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toCall("value");
             
-            expect(matcherState.matcher?.()).toEqual([false, undefined, NOTHING]);
+            expect(matcherState.handler?.()).toEqual([false, undefined, NOTHING]);
         });
 
         it("should throw if the component doesn't have the function", () => {           
@@ -242,7 +243,7 @@ describe("OutputMatcher", () => {
             const outputMatcher = new OutputMatcher(matcherState);
             outputMatcher.toBeBoundTo("value");
 
-            expect(() => matcherState.matcher!()).toThrow();
+            expect(() => matcherState.handler!()).toThrow();
         });
 
         it("should return an instance of ToCallWithMatcher", () => {

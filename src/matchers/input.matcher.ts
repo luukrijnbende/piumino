@@ -26,7 +26,7 @@ export class InputMatcher extends Matcher {
      */
     public toEqual(value: unknown): FluentChainFinisher<this> {
         this.setDescription(`equal '${value}'`, this.getDescriptionModifier());
-        this.setMatcher(() => {
+        this.setHandler(() => {
             this.checkElementHasProperty(this.state.inputSelector);
 
             const element = this.getElement();
@@ -48,7 +48,7 @@ export class InputMatcher extends Matcher {
      */
     public toBeBoundTo(property: string): FluentChainWithFinisher<ModifyWithMatcher> {
         this.setDescription(`be bound to '${property}'`, this.getDescriptionModifier());
-        this.setMatcher((payload: unknown = "binding") => {
+        this.setHandler((payload: unknown = "binding") => {
             this.checkComponentHasProperty(property);
             this.checkElementHasProperty(this.state.inputSelector);
 
@@ -80,7 +80,7 @@ export class InputMatcher extends Matcher {
      */
     public toCall(func: string): FluentChainWithFinisher<ToCallWithMatcher> {
         this.setDescription(`call '${func}'`, this.getDescriptionModifier());
-        this.setMatcher(() => {
+        this.setHandler(() => {
             this.checkComponentHasProperty(func);
             this.checkElementHasProperty(this.state.inputSelector);
 

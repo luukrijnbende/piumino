@@ -15,11 +15,11 @@ export class ToCallWithMatcher extends Matcher {
      */
     public with(value: unknown, ...rest: unknown[]): FluentChainFinisher<this> {
         const values = [value, ...rest];
-        const toCallMatcher = this.state.matcher;
+        const toCallHandler = this.state.handler;
 
         this.appendDescription(`with '${values.join("','")}'`);
-        this.setMatcher(() => {
-            const [hasBeenCalled, received] = toCallMatcher!(values[values.length - 1]);
+        this.setHandler(() => {
+            const [hasBeenCalled, received] = toCallHandler!(values[values.length - 1]);
 
             return [hasBeenCalled && deepEqual(received, values), received, values];
         });

@@ -49,11 +49,11 @@ describe("BaseMatcher", () => {
             expect(matcherState.description).toBe("'selector' should have text 'text'");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveText("text");
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it.each`
@@ -73,14 +73,14 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveText("text");
 
-            expect(matcherState.matcher!()).toEqual([expected, text.trim(), "text"]);
+            expect(matcherState.handler!()).toEqual([expected, text.trim(), "text"]);
         });
 
         it("should return false if the element doesn't have textContent", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveText("text");
 
-            expect(matcherState.matcher!()).toEqual([false, "", "text"]);
+            expect(matcherState.handler!()).toEqual([false, "", "text"]);
         });
 
         it("should return an instance of BaseMatcher", () => {
@@ -98,11 +98,11 @@ describe("BaseMatcher", () => {
             expect(matcherState.description).toBe("'selector' should have case insensitive text 'text'");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveTextCaseInsensitive("TeXt");
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it.each`
@@ -122,14 +122,14 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveTextCaseInsensitive("TeXt");
 
-            expect(matcherState.matcher!()).toEqual([expected, text.trim().toLowerCase(), "text"]);
+            expect(matcherState.handler!()).toEqual([expected, text.trim().toLowerCase(), "text"]);
         });
 
         it("should return false if the element doesn't have textContent", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toHaveTextCaseInsensitive("TeXt");
 
-            expect(matcherState.matcher!()).toEqual([false, "", "text"]);
+            expect(matcherState.handler!()).toEqual([false, "", "text"]);
         });
 
         it("should return an instance of BaseMatcher", () => {
@@ -147,11 +147,11 @@ describe("BaseMatcher", () => {
             expect(matcherState.description).toBe("'selector' should be present");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it("should return true when the selected element is present", () => {
@@ -168,7 +168,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
 
-            expect(matcherState.matcher!()).toEqual([true]);
+            expect(matcherState.handler!()).toEqual([true]);
             expect(element.getRootNode).toHaveBeenCalledWith({ composed: true });
         });
 
@@ -185,7 +185,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
 
-            expect(matcherState.matcher!()).toEqual([false]);
+            expect(matcherState.handler!()).toEqual([false]);
             expect(element.getRootNode).toHaveBeenCalledWith({ composed: true });
         });
 
@@ -195,7 +195,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBePresent();
 
-            expect(matcherState.matcher!()).toEqual([false]);
+            expect(matcherState.handler!()).toEqual([false]);
         });
 
         it("should return an instance of BaseMatcher", () => {
@@ -213,11 +213,11 @@ describe("BaseMatcher", () => {
             expect(matcherState.description).toBe("'selector' should be visible");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher).toBeDefined();
+            expect(matcherState.handler).toBeDefined();
         });
 
         it.each`
@@ -243,7 +243,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher!()).toEqual([expected]);
+            expect(matcherState.handler!()).toEqual([expected]);
         });
 
         it.each`
@@ -266,7 +266,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher!()).toEqual([expected]);
+            expect(matcherState.handler!()).toEqual([expected]);
         });
 
         it("should return true when the selected element is present", () => {
@@ -285,7 +285,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher!()).toEqual([true]);
+            expect(matcherState.handler!()).toEqual([true]);
             expect(element.getRootNode).toHaveBeenCalledWith({ composed: true });
         });
 
@@ -304,7 +304,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher!()).toEqual([false]);
+            expect(matcherState.handler!()).toEqual([false]);
             expect(element.getRootNode).toHaveBeenCalledWith({ composed: true });
         });
 
@@ -315,7 +315,7 @@ describe("BaseMatcher", () => {
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
 
-            expect(matcherState.matcher!()).toEqual([false]);
+            expect(matcherState.handler!()).toEqual([false]);
         });
 
         it("should return an instance of BaseMatcher", () => {

@@ -2,12 +2,12 @@ import { MatcherState } from "./matcher";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 
 describe("ModifyWithMatcher", () => {
-    const matcher = jest.fn();
+    const handler = jest.fn();
     let matcherState: MatcherState;
 
     beforeEach(() => {
         matcherState = {
-            matcher,
+            handler,
             selector: "selector"
         } as any;
     });
@@ -20,29 +20,29 @@ describe("ModifyWithMatcher", () => {
             expect(matcherState.description).toBe("undefined modified with 'value'");
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const modifyWithMatcher = new ModifyWithMatcher(matcherState);
             modifyWithMatcher.modifyWith("value");
 
-            expect(matcherState.matcher).toBeDefined();
-            expect(matcherState.matcher).not.toBe(matcher);
+            expect(matcherState.handler).toBeDefined();
+            expect(matcherState.handler).not.toBe(handler);
         });
 
-        it("should call the original matcher with the provided value", () => {
+        it("should call the original handler with the provided value", () => {
             const modifyWithMatcher = new ModifyWithMatcher(matcherState);
             modifyWithMatcher.modifyWith("value");
-            matcherState.matcher!();
+            matcherState.handler!();
 
-            expect(matcher).toHaveBeenCalledWith("value");
+            expect(handler).toHaveBeenCalledWith("value");
         });
 
-        it("should return the result of the original matcher", () => {
-            matcher.mockReturnValueOnce("result");
+        it("should return the result of the original handler", () => {
+            handler.mockReturnValueOnce("result");
 
             const modifyWithMatcher = new ModifyWithMatcher(matcherState);
             modifyWithMatcher.modifyWith("value");
 
-            expect(matcherState.matcher!()).toBe("result");
+            expect(matcherState.handler!()).toBe("result");
         });
 
         it("should return an instance of ModifyWithMatcher", () => {

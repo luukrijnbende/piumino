@@ -2,12 +2,12 @@ import { MatcherState } from "./matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 describe("ToCallWithMatcher", () => {
-    const matcher = jest.fn();
+    const handler = jest.fn();
     let matcherState: MatcherState;
 
     beforeEach(() => {
         matcherState = {
-            matcher,
+            handler,
             selector: "selector"
         } as any;
     });
@@ -24,32 +24,32 @@ describe("ToCallWithMatcher", () => {
             expect(matcherState.description).toBe(`undefined with '${values.join("','")}'`);
         });
 
-        it("should set the matcher", () => {
+        it("should set the handler", () => {
             const toCallWithMatcher = new ToCallWithMatcher(matcherState);
             toCallWithMatcher.with("value");
 
-            expect(matcherState.matcher).toBeDefined();
-            expect(matcherState.matcher).not.toBe(matcher);
+            expect(matcherState.handler).toBeDefined();
+            expect(matcherState.handler).not.toBe(handler);
         });
 
-        it("should call the original matcher with the provided value", () => {
-            matcher.mockReturnValueOnce([true, ["value"]]);
+        it("should call the original handler with the provided value", () => {
+            handler.mockReturnValueOnce([true, ["value"]]);
 
             const toCallWithMatcher = new ToCallWithMatcher(matcherState);
             toCallWithMatcher.with("value");
-            matcherState.matcher!();
+            matcherState.handler!();
 
-            expect(matcher).toHaveBeenCalledWith("value");
+            expect(handler).toHaveBeenCalledWith("value");
         });
 
-        it("should call the original matcher with the last provided value", () => {
-            matcher.mockReturnValueOnce([true, ["value"]]);
+        it("should call the original handler with the last provided value", () => {
+            handler.mockReturnValueOnce([true, ["value"]]);
 
             const toCallWithMatcher = new ToCallWithMatcher(matcherState);
             toCallWithMatcher.with("value1", "value2");
-            matcherState.matcher!();
+            matcherState.handler!();
 
-            expect(matcher).toHaveBeenCalledWith("value2");
+            expect(handler).toHaveBeenCalledWith("value2");
         });
 
         it.each`
@@ -60,21 +60,21 @@ describe("ToCallWithMatcher", () => {
             ${[{ value: 1 }]}       | ${[{ value: 1 }]}       | ${true}
             ${[{ value: 1 }]}       | ${[{ value: 2 }]}       | ${false}
         `("should return $expected for '$values' and '$received'", ({ values, received, expected }) => {
-            matcher.mockReturnValueOnce([true, received]);
+            handler.mockReturnValueOnce([true, received]);
 
             const toCallWithMatcher = new ToCallWithMatcher(matcherState);
             toCallWithMatcher.with(values[0], ...values.slice(1));
 
-            expect(matcherState.matcher!()).toEqual([expected, received, values]);
+            expect(matcherState.handler!()).toEqual([expected, received, values]);
         });
 
         it("should return false if the function has not been called", () => {
-            matcher.mockReturnValueOnce([false, ["value"]]);
+            handler.mockReturnValueOnce([false, ["value"]]);
 
             const toCallWithMatcher = new ToCallWithMatcher(matcherState);
             toCallWithMatcher.with("value");
 
-            expect(matcherState.matcher!()).toEqual([false, ["value"], ["value"]]);
+            expect(matcherState.handler!()).toEqual([false, ["value"], ["value"]]);
         });
 
         it("should return an instance of ToCallWithMatcher", () => {
