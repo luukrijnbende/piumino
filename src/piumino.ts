@@ -1,7 +1,9 @@
+import { ElementFinder } from "./element-finder";
 import { ObjectHelper } from "./helpers/object.helper";
 import { BaseMatcher } from "./matchers/base.matcher";
 import { MatcherState } from "./matchers/matcher";
 import { ComponentFixtureLike, GenericFunction, GenericObject, FluentChainStarter, Selector, SelectionStrategy, HandlerExecutionStrategy } from "./types";
+import { PiuminoErrorThrower } from "./util/error-thrower";
 
 export class Piumino {
     private fixture: ComponentFixtureLike | null = null;
@@ -23,8 +25,7 @@ export class Piumino {
     public expect(selector: Selector): FluentChainStarter<BaseMatcher> {
         return new BaseMatcher({
             ...this.createCommonMatcherState(),
-            selector,
-            selectionStrategy: SelectionStrategy.First
+            elementFinder: new ElementFinder(selector, SelectionStrategy.First)
         });
     }
 
@@ -36,8 +37,7 @@ export class Piumino {
     public expectAll(selector: Selector): FluentChainStarter<BaseMatcher> {
         return new BaseMatcher({
             ...this.createCommonMatcherState(),
-            selector,
-            selectionStrategy: SelectionStrategy.All
+            elementFinder: new ElementFinder(selector, SelectionStrategy.All)
         });
     }
 
@@ -67,13 +67,9 @@ export class Piumino {
         return this.fixture;
     }
 
-    private getErrorStack(): string | undefined {
-        return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
-    }
-
-    private createCommonMatcherState(): Pick<MatcherState, "errorStack" | "getFixture" | "handlerExecutionStrategy"> {
+    private createCommonMatcherState(): Pick<MatcherState, "errorThrower" | "getFixture" | "handlerExecutionStrategy"> {
         return {
-            errorStack: this.getErrorStack(),
+            errorThrower: new PiuminoErrorThrower(),
             getFixture: () => this.getFixture(),
             handlerExecutionStrategy: HandlerExecutionStrategy.Loop
         };

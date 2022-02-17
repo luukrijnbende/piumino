@@ -1,16 +1,16 @@
 import { DebugElement } from "@angular/core";
-import objectInspect from "object-inspect";
+import { ElementFinder } from "../element-finder";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
-import { ComponentFixtureLike, FluentChain, GenericObject, HandlerExecutionStrategy, MatcherHandler, NOTHING, PiuminoError, SelectionStrategy, Selector, TestDefinition } from "../types";
+import { ComponentFixtureLike, FluentChain, GenericObject, HandlerExecutionStrategy, MatcherHandler, NOTHING, TestDefinition } from "../types";
+import { PiuminoErrorThrower } from "../util/error-thrower";
 
 export interface MatcherState {
-    selector: Selector;
-    selectionStrategy: SelectionStrategy;
+    elementFinder: ElementFinder;
     negate?: boolean;
     description?: string;
     errorDescription?: string;
-    errorStack?: string;
+    errorThrower: PiuminoErrorThrower;
     getFixture: () => ComponentFixtureLike | null;
     handler?: MatcherHandler;
     handlerExecutionStrategy?: HandlerExecutionStrategy;
@@ -38,21 +38,25 @@ export abstract class Matcher {
 
     public execute(): void {
         if (!this.state.handler) {
-            return this.throwError("Please choose a matcher first");
+            return this.state.errorThrower.throw("Please choose a matcher first");
         }
+       
+        const fixture = this.getFixture();
+        this.state.elementFinder.findElements(fixture);
 
-        // Loop the handler
-        // Make sure the right element is returned
-        //  - Include in handler context?
-        //  - Keep a counter and adjust the return value?
-        //  - Make a separate class to handle element selection? -> preference
+        switch (this.state.handlerExecutionStrategy) {
+            case HandlerExecutionStrategy.Loop:
+                const numberOfElements = this.state.elementFinder.count();
 
+                for (let i = 0; i < numberOfElements; i++) {
+                    this.state.elementFinder.setElementIndex(i);
+                    this.executeHandler();
+                }
 
-        const result = this.state.handler();
-        const [matcherResult, matcherReceived, matcherExpected] = Array.isArray(result) ? result : [result, NOTHING, NOTHING];
-
-        if ((!this.state.negate && !matcherResult) || (this.state.negate && matcherResult)) {
-            this.throwError(this.state.errorDescription!, matcherReceived, matcherExpected);
+                break;
+            case HandlerExecutionStrategy.Once:
+                this.executeHandler();
+                break;
         }
 
         // Dummy expect to keep Jest / Jasmine happy.
@@ -60,8 +64,8 @@ export abstract class Matcher {
     }
 
     protected setDescription(description: string, modifier?: string): void {
-        this.state.description = `'${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "should not" : "should"} ${description}`;
-        this.state.errorDescription = `Expected '${this.state.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "not to" : "to"} ${description}`;
+        this.state.description = `'${this.state.elementFinder.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "should not" : "should"} ${description}`;
+        this.state.errorDescription = `Expected '${this.state.elementFinder.selector}'${modifier ? ` ${modifier}` : ""} ${this.state.negate ? "not to" : "to"} ${description}`;
     }
 
     protected appendDescription(description: string): void {
@@ -81,7 +85,7 @@ export abstract class Matcher {
         const fixture = this.state.getFixture();
 
         if (!fixture) {
-            return this.throwError("Could not get fixture, please initialize Piumino first");
+            return this.state.errorThrower.throw("Could not get fixture, please initialize Piumino first");
         }
         
         return fixture;
@@ -103,22 +107,15 @@ export abstract class Matcher {
         const component = this.getComponent();
 
         if (!ObjectHelper.hasProperty(component, property)) {
-            this.throwError(`Property '${property}' does not exist on '${component.constructor.name}'`);
+            this.state.errorThrower.throw(`Property '${property}' does not exist on '${component.constructor.name}'`);
         }
     }
 
     protected getElement(throwError = true): DebugElement {
-        const fixture = this.getFixture();
-
-        fixture.detectChanges();
-
-        // TODO: support selector as DebugElement and/or HTMLElement.
-        // queryAll, then filter
-        const element = fixture.debugElement.query(el =>
-            el.nativeElement?.matches?.(this.state.selector))
+        const element = this.state.elementFinder.get();
 
         if (throwError && !element) {
-            return this.throwError(`Could not find element with selector '${this.state.selector}'`);
+            return this.state.errorThrower.throw(`Could not find element with selector '${this.state.elementFinder.selector}'`);
         }
 
         return element;
@@ -128,34 +125,16 @@ export abstract class Matcher {
         const element = this.getElement();
 
         if (!NgHelper.hasProperty(element, property)) {
-            this.throwError(`Property '${property}' does not exist on '${element.name}''`);
+            this.state.errorThrower.throw(`Property '${property}' does not exist on '${element.name}''`);
         }
     }
 
-    protected throwError(message: string, received: unknown = NOTHING, expected: unknown = NOTHING): never {
-        let errorMessage = message;
+    private executeHandler(): void {
+        const result = this.state.handler!();
+        const [matcherResult, matcherReceived, matcherExpected] = Array.isArray(result) ? result : [result, NOTHING, NOTHING];
 
-        if (received !== NOTHING || expected !== NOTHING) {
-            errorMessage += `\n\n\x1b[31mReceived: ${this.stringifyValue(received)}\x1b[0m`;
-            errorMessage += `\n\n\x1b[32mExpected: ${this.stringifyValue(expected)}\x1b[0m`;
+        if ((!this.state.negate && !matcherResult) || (this.state.negate && matcherResult)) {
+            this.state.errorThrower.throw(this.state.errorDescription!, matcherReceived, matcherExpected);
         }
-
-        throw new PiuminoError(errorMessage, this.state.errorStack);
-    }
-
-    private stringifyValue(value: unknown) {
-        if (value === NOTHING) {
-            return "";
-        }
-
-        if (typeof value === "string") {
-            return `'${value}'`;
-        }
-
-        if (ObjectHelper.isObject(value)) {
-            return `\n${objectInspect(value, { indent: 2 })}`;
-        }
-
-        return `${value}`;
     }
 }

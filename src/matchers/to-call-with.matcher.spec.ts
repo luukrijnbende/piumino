@@ -1,15 +1,28 @@
+import { ElementFinder } from "../element-finder";
+import { ComponentFixtureLike, SelectionStrategy } from "../types";
+import { PiuminoErrorThrower } from "../util/error-thrower";
 import { MatcherState } from "./matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
 
 describe("ToCallWithMatcher", () => {
     const handler = jest.fn();
+    let fixture: ComponentFixtureLike;
     let matcherState: MatcherState;
 
     beforeEach(() => {
+        fixture = {
+            componentInstance: {},
+            debugElement: {
+                query: jest.fn(() => ({ nativeElement: document.createElement("div") }))
+            } as any,
+            detectChanges: jest.fn()
+        };
         matcherState = {
-            handler,
-            selector: "selector"
-        } as any;
+            elementFinder: new ElementFinder("selector", SelectionStrategy.First),
+            errorThrower: new PiuminoErrorThrower(),
+            getFixture: jest.fn(() => fixture),
+            handler
+        };
     });
 
     describe("modifyWith", () => {

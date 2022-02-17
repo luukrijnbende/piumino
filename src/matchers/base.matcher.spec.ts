@@ -1,4 +1,6 @@
+import { ElementFinder } from "../element-finder";
 import { ComponentFixtureLike, SelectionStrategy } from "../types";
+import { PiuminoErrorThrower } from "../util/error-thrower";
 import { BaseMatcher } from "./base.matcher";
 import { InputMatcher } from "./input.matcher";
 import { MatcherState } from "./matcher";
@@ -17,8 +19,8 @@ describe("BaseMatcher", () => {
             detectChanges: jest.fn()
         };
         matcherState = {
-            selector: "selector",
-            selectionStrategy: SelectionStrategy.First,
+            elementFinder: new ElementFinder("selector", SelectionStrategy.First),
+            errorThrower: new PiuminoErrorThrower(),
             getFixture: jest.fn(() => fixture)
         };
     });

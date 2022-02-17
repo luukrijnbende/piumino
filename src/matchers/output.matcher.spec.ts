@@ -1,6 +1,8 @@
+import { ElementFinder } from "../element-finder";
 import { NgHelper } from "../helpers/ng.helper";
 import { ObjectHelper } from "../helpers/object.helper";
 import { ComponentFixtureLike, NOTHING, SelectionStrategy } from "../types";
+import { PiuminoErrorThrower } from "../util/error-thrower";
 import { ModifyWithMatcher } from "./modify-with.matcher";
 import { OutputMatcher, OutputMatcherState } from "./output.matcher";
 import { ToCallWithMatcher } from "./to-call-with.matcher";
@@ -18,8 +20,8 @@ describe("OutputMatcher", () => {
             detectChanges: jest.fn()
         };
         matcherState = {
-            selector: "selector",
-            selectionStrategy: SelectionStrategy.First,
+            elementFinder: new ElementFinder("selector", SelectionStrategy.First),
+            errorThrower: new PiuminoErrorThrower(),
             outputSelector: "output",
             getFixture: jest.fn(() => fixture)
         };

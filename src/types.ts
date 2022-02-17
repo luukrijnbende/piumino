@@ -14,14 +14,14 @@ export type FluentChainWithFinisher<T extends GenericObject> = Omit<T, "not" | F
 export type FluentChainFinisher<T extends GenericObject> = Pick<T, "build" | "execute">;
 
 export enum SelectionStrategy {
+    All = "all",
     First = "first",
-    Last = "last",
-    All = "all"
+    Last = "last"
 }
 
 export enum HandlerExecutionStrategy {
-    Once = "once",
-    Loop = "loop"
+    Loop = "loop",
+    Once = "once"
 }
 
 export interface ComponentFixtureLike {
