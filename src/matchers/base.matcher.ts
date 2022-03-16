@@ -80,7 +80,7 @@ export class BaseMatcher extends Matcher {
                 return [false];
             }
 
-            const computedStyle = getComputedStyle(element);
+            const computedStyle = window.getComputedStyle(element);
             const isStyleVisible = computedStyle.display !== "none"
                 && computedStyle.visibility !== "hidden"
                 && computedStyle.visibility !== "collapsed"

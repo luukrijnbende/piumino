@@ -237,7 +237,7 @@ describe("BaseMatcher", () => {
             fixture.debugElement.query = jest.fn(() => ({
                 nativeElement: element
             })) as any;
-            jest.spyOn(global, "getComputedStyle").mockReturnValue(style);
+            jest.spyOn(globalThis, "getComputedStyle").mockReturnValue(style);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
@@ -260,7 +260,7 @@ describe("BaseMatcher", () => {
             fixture.debugElement.query = jest.fn(() => ({
                 nativeElement: element
             })) as any;
-            jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
+            jest.spyOn(globalThis, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
@@ -279,7 +279,7 @@ describe("BaseMatcher", () => {
             fixture.debugElement.query = jest.fn(() => ({
                 nativeElement: element
             })) as any;
-            jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
+            jest.spyOn(globalThis, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
@@ -298,7 +298,7 @@ describe("BaseMatcher", () => {
             fixture.debugElement.query = jest.fn(() => ({
                 nativeElement: element
             })) as any;
-            jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
+            jest.spyOn(globalThis, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
@@ -309,7 +309,7 @@ describe("BaseMatcher", () => {
 
         it("should return false when the selected element is not found", () => {
             fixture.debugElement.query = jest.fn(() => undefined) as any;
-            jest.spyOn(global, "getComputedStyle").mockReturnValue({} as any);
+            jest.spyOn(globalThis, "getComputedStyle").mockReturnValue({} as any);
 
             const baseMatcher = new BaseMatcher(matcherState);
             baseMatcher.toBeVisible();
