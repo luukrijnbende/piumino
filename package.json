@@ -1,51 +1,7 @@
 {
-  "name": "piumino",
-  "version": "2.2.0",
-  "description": "Piumino, meaning duvet in Italian, is like a duvet over the bed called Angular TestBed. It provides test helpers to test trivial things like inputs and outputs with a single line.",
-  "author": "Luuk Rijnbende",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/luukrijnbende/piumino/issues"
-  },
-  "homepage": "https://github.com/luukrijnbende/piumino#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/luukrijnbende/piumino.git"
-  },
-  "keywords": [
-    "angular",
-    "testbed",
-    "duvet",
-    "test",
-    "testing",
-    "unittest",
-    "componenttest"
-  ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/*",
-    "!**/*.spec.js",
-    "!**/*.spec.d.ts"
-  ],
-  "scripts": {
-    "build": "rimraf dist && tsc",
-    "build:watch": "npm run build -- --watch",
-    "test": "jest",
-    "test:watch": "npm run test -- --watchAll"
-  },
-  "dependencies": {
-    "@angular/core": "^12.2.15",
-    "fast-deep-equal": "^3.1.3",
-    "object-inspect": "^1.11.1"
-  },
-  "devDependencies": {
-    "@types/object-inspect": "^1.8.1",
-    "@types/jest": "^27.0.3",
-    "jest": "^27.4.5",
-    "rimraf": "^3.0.2",
-    "rxjs": "^7.4.0",
-    "ts-jest": "^27.1.1",
-    "typescript": "^4.5.4"
-  }
+  "name": "piumino-workspace",
+  "workspaces": [
+    "lib",
+    "demo/jest"
+  ]
 }

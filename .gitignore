@@ -17,3 +17,6 @@ dist/
 
 # Jest
 coverage/
+
+# Angular
+.angular/
