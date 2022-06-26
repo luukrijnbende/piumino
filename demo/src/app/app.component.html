@@ -1,2 +1,15 @@
 <h1>Piumino Demo with Jest</h1>
-<div data-testid="to-have-text">Should have this text</div>
+<div data-testid="text">Should have this text</div>
+<div data-testid="present" style="display: none;">This is present but not visible</div>
+<div data-testid="visible">This is visible</div>
+<dummy
+    inputA="static text"
+    [inputB]="someProperty"
+    [inputC]="someFunction()"
+    [inputD]="someFunction(someProperty)"
+    (outputA)="someProperty = $event"
+    (outputB)="someProperty = 'static text'"
+    (outputC)="someFunction()"
+    (outputD)="someFunction($event)"
+    (outputE)="someFunction('static text', $event)"
+></dummy>

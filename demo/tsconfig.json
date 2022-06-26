@@ -14,7 +14,7 @@
     "target": "ES2015",
     "lib": ["ES2018", "DOM"],
     "paths": {
-      "piumino": ["../../dist"]
+      "piumino": ["../dist"]
     }
   },
   "angularCompilerOptions": {

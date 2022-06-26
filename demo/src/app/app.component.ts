@@ -3,8 +3,16 @@ import { Component } from "@angular/core";
 @Component({
     selector: "app-root",
     templateUrl: "./app.component.html",
-    styleUrls: ["./app.component.css"]
 })
 export class AppComponent {
-    title = "angular-starter";
+    public someProperty = "text from property";
+    public someOtherProperty = "text from other property";
+
+    public someFunction(...args) {
+        return `text from function ${args.join(", ")}`.trim();
+    }
+
+    public someOtherFunction(...args) {
+        return `text from other function ${args.join(", ")}`.trim();
+    }
 }
