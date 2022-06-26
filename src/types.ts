@@ -4,7 +4,7 @@ export const NOTHING = Symbol("NOTHING");
 
 export type Selector = string;
 export type TestDefinition = [string, () => void];
-export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks MatcherChainFinisher.
+export type GenericObject = Record<string, any>; // TODO: Use unknown, breaks FluentChainFinisher.
 export type GenericFunction = (...args: unknown[]) => unknown;
 export type MatcherFunction = (payload?: unknown) => [boolean, unknown?, unknown?];
 export type FluentChainStarters = "input" | "output";
@@ -29,7 +29,7 @@ export class PiuminoError extends Error {
         super(description);
 
         if (stack) {
-            this.stack = stack;
+            this.stack = `${description}\n${stack}`;
         }
     }
 }

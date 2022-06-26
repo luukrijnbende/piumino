@@ -1,10 +1,10 @@
 module.exports = {
     collectCoverage: true,
-    preset: "ts-jest",
-    testEnvironment: "jsdom",
+    preset: "jest-preset-angular",
     testPathIgnorePatterns: [
         "/node_modules/",
-        "/dist/"
+        "/dist/",
+        "/demo/"
     ],
     clearMocks: true
 };

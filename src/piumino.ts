@@ -52,6 +52,6 @@ export class Piumino {
     }
 
     private getErrorStack(): string | undefined {
-        return new Error().stack?.split("\n").filter(item => !item.toLowerCase().includes("piumino")).join("\n");
+        return new Error().stack?.split("\n").slice(3).join("\n");
     }
 }

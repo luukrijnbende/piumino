@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "module": "CommonJS",
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -11,5 +12,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.spec.ts"]
 }
