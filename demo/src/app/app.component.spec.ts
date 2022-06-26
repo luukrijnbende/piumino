@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { TestBed } from "@angular/core/testing";
+import { AppComponent } from "./app.component";
 import { Piumino } from "piumino";
 
-describe('AppComponent', () => {
+describe("AppComponent", () => {
   const piumino = new Piumino();
 
   beforeEach(async () => {
